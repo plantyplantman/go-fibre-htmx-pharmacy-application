@@ -1,0 +1,15 @@
+<main class="w-full h-full">
+    <!-- Landing -->
+    <div class="hero min-h-screen bg-base-200" id="landing">
+        <div class="hero-content flex-col lg:flex-row">
+            <img src="/images/daisy.jfif" class="max-w-sm rounded-lg shadow-2xl" />
+            <div>
+                <form hx-post="/multistore" enctype="multipart/form-data" hx-select="#result" hx-target="#landing"
+                    hx-swap="outerHTML" class="form-control">
+                    <input type="file" class="file-input file-input-bordered w-full max-w-xs" name="file" id="file" />
+                    <input type="submit" class="btn">
+                </form>
+            </div>
+        </div>
+    </div>
+</main>

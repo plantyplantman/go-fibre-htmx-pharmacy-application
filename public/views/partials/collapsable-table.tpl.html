@@ -1,0 +1,35 @@
+<div id="result">
+    <div class="join join-vertical w-full">
+        {{range $key, $value := . }}
+        <div class="collapse collapse-arrow join-item border border-base-300">
+            <input type="radio" name="my-accordion-4" checked="checked" />
+            <div class="collapse-title text-xl font-medium">
+                {{$key}}
+            </div>
+            <div class="collapse-content">
+                <button hx-put="/multistore" class="btn">
+                    Apply
+                </button>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            {{ range $header := $value.Headers }}
+                            <th>{{ $header }}</th>
+                            {{ end }}
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {{ range $row := $value.Rows }}
+                        <tr class="{{$row.Class}}">
+                            {{ range $cell := $row }}
+                            <td>{{ $cell }}</td>
+                            {{ end }}
+                        </tr>
+                        {{ end }}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {{end}}
+    </div>
+</div>

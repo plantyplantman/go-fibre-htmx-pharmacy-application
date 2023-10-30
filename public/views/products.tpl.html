@@ -1,0 +1,30 @@
+<div id="data-input" class="flex flex-col items-center">
+       <form hx-get="/products" hx-trigger="keyup changed delay:500ms from:input, search, submit" hx-target="#tbody"
+              hx-swap="outerHTML" hx-select="#tbody" hx-push-url="true" id="table-form" class="join join-vertical">
+              <div class="join">
+                     <input type="search" name="query" placeholder="Begin Typing To Search Products..."
+                            class="input input-bordered join-item">
+                     <input type="submit" class="btn join-item">
+              </div>
+              <div class="join join-vertical items-stretch">
+                     <label class="label cursor-pointer max-w-xs join-item">
+                            <input type="checkbox" class="toggle" id="includeDeleted" name="includeDeleted">
+                            <span class="label-text">Include Deleted</span>
+                     </label>
+                     <label class="label cursor-pointer max-w-xs join-item">
+                            <input type="checkbox" class="toggle" id="includeNotStockedWeb" name="includeNotStockedWeb">
+                            <span class="label-text">Include Not Stocked On Web</span>
+                     </label>
+              </div>
+       </form>
+
+       <div id="pageLimit">
+              <input type="hidden" value="{{.Page}}" name="page">
+              <input type="hidden" value="{{.Limit}}" name="limit">
+       </div>
+
+</div>
+
+
+
+{{template "partials/table" .}}
