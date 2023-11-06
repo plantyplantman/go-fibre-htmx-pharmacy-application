@@ -25,7 +25,7 @@ type ProductRetailListLine struct {
 	Cost     Price  `csv:"Cost"`
 }
 
-func (prl *ProductRetailList) ToTable() *presenter.Table {
+func (prl *ProductRetailList) ToTable() presenter.Table {
 	headers := []string{
 		"MNPN",
 		"Barcode",
@@ -33,26 +33,27 @@ func (prl *ProductRetailList) ToTable() *presenter.Table {
 		"Product Name",
 		"Price",
 	}
-	rows := make([]*presenter.Row, 0)
+	rows := make([]presenter.Row, 0)
 	for _, l := range prl.Lines {
-		rows = append(rows, l.ToTableRow())
+		rows = append(rows, l.ToPresenterRow())
 	}
 
-	return &presenter.Table{
+	return presenter.Table{
 		Headers: headers,
 		Rows:    rows,
 	}
 }
 
-func (prl *ProductRetailListLine) ToTableRow() *presenter.Row {
-	return &presenter.Row{
-		Cells: []*presenter.Cell{
-			presenter.NewCell(strconv.Itoa(prl.Mnpn)),
-			presenter.NewCell(prl.Sku),
-			presenter.NewCell(strconv.Itoa(prl.ProdNo)),
-			presenter.NewCell(prl.ProdName),
-			presenter.NewCell(prl.Price.String()),
+func (prl *ProductRetailListLine) ToPresenterRow(cns ...string) presenter.Row {
+	return presenter.Row{
+		Cells: []string{
+			strconv.Itoa(prl.Mnpn),
+			prl.Sku,
+			strconv.Itoa(prl.ProdNo),
+			prl.ProdName,
+			prl.Price.String(),
 		},
+		ClassName: strings.Join(cns, " "),
 	}
 }
 
@@ -305,20 +306,20 @@ func (prl *ProductRetailList) Deleted(c *bigc.BigCommerceClient, r product.Servi
 	return notOnSiteReport
 }
 
-func DoMultistore(prlM map[string]*ProductRetailList, s product.Service, c *bigc.BigCommerceClient) []NotOnSiteReport {
-	var notOnSiteReports []NotOnSiteReport
+func DoMultistore(prlM map[string]*ProductRetailList, s product.Service, c *bigc.BigCommerceClient) NotOnSiteReport {
+	var notOnSiteReport NotOnSiteReport
 	for k := range prlM {
 		switch k {
 		case "new":
-			notOnSiteReports = append(notOnSiteReports, prlM[k].NotOnSite(s))
+			notOnSiteReport = append(notOnSiteReport, prlM[k].NotOnSite(s)...)
 		case "edited":
-			notOnSiteReports = append(notOnSiteReports, prlM[k].Edited(c, s))
+			notOnSiteReport = append(notOnSiteReport, prlM[k].Edited(c, s)...)
 		case "clean":
-			notOnSiteReports = append(notOnSiteReports, prlM[k].Deleted(c, s))
+			notOnSiteReport = append(notOnSiteReport, prlM[k].Deleted(c, s)...)
 		default:
 			continue
 		}
 	}
 
-	return notOnSiteReports
+	return notOnSiteReport
 }

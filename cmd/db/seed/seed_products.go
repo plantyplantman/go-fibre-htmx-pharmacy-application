@@ -1,7 +1,8 @@
 package main
 
 import (
-	"fmt"
+	"encoding/csv"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -10,13 +11,12 @@ import (
 	"sync"
 	"time"
 
-	"github.com/plantyplantman/bcapi/pkg/db"
+	"github.com/gocarina/gocsv"
+	"github.com/plantyplantman/bcapi/api/presenter"
 	"github.com/plantyplantman/bcapi/pkg/entities"
 	"github.com/plantyplantman/bcapi/pkg/env"
 	"github.com/plantyplantman/bcapi/pkg/parser"
 	"github.com/plantyplantman/bcapi/pkg/report"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
 )
 
 func main() {
@@ -30,33 +30,72 @@ func main() {
 	// prl := mustParseProductRetailList(filepath.Join(ZihanFilesPath, `in/231025/231025__petrie__prlwgp.TXT`))
 	// pf := mustParseProductFile(filepath.Join(ZihanFilesPath, `in/231025/231025__web__pf.tsv`))
 
-	var ZihanFilesPath = `c:\Users\admin\Develin Management Dropbox\Zihan\files\`
-	var psls report.ProductStockLists = parseProductStockList(filepath.Join(ZihanFilesPath, `in\231030`))
-	if len(psls) != 4 {
-		log.Fatal("wrong number of psls, expected 4, got", len(psls))
-	}
-	prl := mustParseProductRetailList(filepath.Join(ZihanFilesPath, `in\231030\231030__petrie__prlwgp.TXT`))
-	pf := mustParseProductFile(filepath.Join(ZihanFilesPath, `in\231030\231030__web__pf.tsv`))
+	var date = time.Now().Format("060102")
+	var ZihanFilesPath = `C:\Users\admin\Develin Management Dropbox\Zihan\files\`
+	var inPath = filepath.Join(ZihanFilesPath, `in\`+date)
+	var outPath = filepath.Join(ZihanFilesPath, `out\`+date)
+	outFilePath := filepath.Join(outPath, date+`__ms-web__pf.tsv`)
 
-	products := NewProducts(psls, prl, pf)
+	var psls report.ProductStockLists = mustParseProductStockList(inPath)
+	prl := mustParseProductRetailList(filepath.Join(inPath, date+`__petrie__prlwgp.TXT`))
+	pf := mustParseProductFile(filepath.Join(inPath, date+`__web__pf.tsv`))
 
-	DB, err := gorm.Open(postgres.Open(connString), &gorm.Config{})
+	var products = NewProducts(psls, prl, pf)
+	err := export(products, outFilePath)
 	if err != nil {
 		log.Fatalln(err)
 	}
-	if err = db.Migrate(DB); err != nil {
+	log.Println("exported to", outFilePath)
+
+	// DB, err := gorm.Open(postgres.Open(connString), &gorm.Config{})
+	// if err != nil {
+	// 	log.Fatalln(err)
+	// }
+	// if err = db.Migrate(DB); err != nil {
+	// 	log.Fatalln(err)
+	// }
+	// if err = db.Seed(DB, products); err != nil {
+	// 	log.Fatalln(err)
+	// }
+
+	// p := &entities.Product{Sku: "1234"}
+	// if err := DB.First(p); err != nil {
+	// 	log.Fatalln(err)
+	// }
+
+	// fmt.Printf("%s, %s", p.Sku, p.Name)
+}
+
+func export(products []*entities.Product, path string) error {
+	var pps presenter.Products
+	for _, p := range products {
+		var pp = &presenter.Product{}
+		pp.FromEntity(p)
+		pps = append(pps, pp)
+	}
+
+	if err := os.MkdirAll(filepath.Dir(path), 0770); err != nil {
+		return err
+	}
+
+	f, err := os.OpenFile(path, os.O_RDWR|os.O_CREATE, os.ModePerm)
+	if err != nil {
 		log.Fatalln(err)
 	}
-	if err = db.Seed(DB, products); err != nil {
+	defer f.Close()
+
+	gocsv.SetCSVWriter(func(out io.Writer) *gocsv.SafeCSVWriter {
+		writer := csv.NewWriter(out)
+		writer.Comma = '\t'
+		return gocsv.NewSafeCSVWriter(writer)
+	})
+
+	err = gocsv.MarshalFile(&pps, f)
+	if err != nil {
 		log.Fatalln(err)
 	}
 
-	p := &entities.Product{Sku: "1234"}
-	if err := DB.First(p); err != nil {
-		log.Fatalln(err)
-	}
-
-	fmt.Printf("%+v", p)
+	return nil
 }
 
 func NewProducts(psls []*report.ProductStockList, prl *report.ProductRetailList, pf *report.ProductFile) []*entities.Product {
@@ -202,7 +241,7 @@ func mustParseProductRetailList(path string) *report.ProductRetailList {
 	return &prl
 }
 
-func parseProductStockList(path string) []*report.ProductStockList {
+func mustParseProductStockList(path string) []*report.ProductStockList {
 	var (
 		fs  []string
 		err error
@@ -213,6 +252,9 @@ func parseProductStockList(path string) []*report.ProductStockList {
 	}
 	if len(fs) == 0 {
 		log.Fatal("no sts files found")
+	}
+	if len(fs) != 4 {
+		log.Fatal("wrong number of sts files, expected 4, got", len(fs))
 	}
 
 	var date time.Time

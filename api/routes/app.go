@@ -10,6 +10,7 @@ import (
 	"github.com/plantyplantman/bcapi/pkg/parser"
 	"github.com/plantyplantman/bcapi/pkg/product"
 	"github.com/plantyplantman/bcapi/pkg/report"
+	"github.com/samber/lo"
 	"golang.org/x/exp/rand"
 )
 
@@ -35,6 +36,7 @@ func AppRouter(f fiber.Router, service product.Service) {
 			return err
 		}
 		page := ctx.QueryInt("page", 1)
+		log.Println(ps.ToTable(page+1, ctx.QueryInt("limit", 50)))
 		return ctx.Render("products",
 			ps.ToTable(page+1, ctx.QueryInt("limit", 50)),
 			"layout")
@@ -75,23 +77,125 @@ func AppRouter(f fiber.Router, service product.Service) {
 			return err
 		}
 
-		// skus := []string{}
-		// for k := range rM {
-		// 	for _, l := range rM[k].Lines {
-		// 		skus = append(skus, l.Sku)
-		// 	}
-		// }
-		// ps, err := service.FetchProducts(product.WithStockInformation(), product.WithSkus(skus...))
-		// if err != nil {
-		// 	log.Println(err)
-		// 	return err
-		// }
+		skus := []string{}
+		for k := range rM {
+			for _, l := range rM[k].Lines {
+				skus = append(skus, l.Sku)
+			}
+		}
+		ps, err := service.FetchProducts(product.WithSkus(skus...))
+		if err != nil {
+			log.Println(err)
+			return err
+		}
+
+		// products that are not on the website
+
+		psSkuM := map[string]*presenter.Product{}
+		for _, p := range lo.Filter(ps, func(p *presenter.Product, _ int) bool {
+			return p.OnWeb == 1
+		}) {
+			psSkuM[p.Sku] = p
+		}
+		newps := []*presenter.Product{}
+		changedps := []*presenter.Product{}
+		nochangeps := []*presenter.Product{}
+		for k := range rM {
+			for _, l := range rM[k].Lines {
+				if _, ok := psSkuM[l.Sku]; !ok {
+					newps = append(newps, &presenter.Product{
+						Sku:       l.Sku,
+						ProdName:  l.ProdName,
+						Price:     l.Price.Float64(),
+						CostPrice: l.Cost.Float64(),
+						OnWeb:     0,
+						IsVariant: false,
+						BCID:      "",
+						StockInfomation: presenter.StockInformation{
+							Petrie:   0,
+							Bunda:    0,
+							Con:      0,
+							Franklin: 0,
+							Web:      0,
+							Total:    0,
+						},
+					})
+				} else if psSkuM[l.Sku].Price != l.Price.Float64() {
+					changedps = append(changedps, psSkuM[l.Sku])
+				} else {
+					nochangeps = append(nochangeps, psSkuM[l.Sku])
+				}
+			}
+		}
+
+		newData := []presenter.Row{}
+		for _, p := range newps {
+			newData = append(newData, p.ToPresenterRow())
+		}
+
+		changedData := []presenter.Row{}
+		for _, p := range changedps {
+			changedData = append(changedData, p.ToPresenterRow())
+		}
+
+		nochangeData := []presenter.Row{}
+		for _, p := range nochangeps {
+			nochangeData = append(nochangeData, p.ToPresenterRow())
+		}
 
 		data := fiber.Map{
-			"New":    rM["new"].ToTable(),
-			"Edited": rM["edited"].ToTable(),
-			"Clean":  rM["clean"].ToTable(),
+			"New": presenter.Table{
+				Headers: []string{
+					"Sku",
+					"Name",
+					"Price",
+					"Cost Price",
+					"Petrie",
+					"Bunda",
+					"Con",
+					"Franklin",
+					"Web",
+					"Total",
+					"BCID",
+				},
+				Rows: newData,
+			},
+			"Changed": presenter.Table{
+
+				Headers: []string{
+					"Sku",
+					"Name",
+					"Price",
+					"Cost Price",
+					"Petrie",
+					"Bunda",
+					"Con",
+					"Franklin",
+					"Web",
+					"Total",
+					"BCID",
+				},
+				Rows: changedData,
+			},
+			"NoChange": presenter.Table{
+
+				Headers: []string{
+					"Sku",
+					"Name",
+					"Price",
+					"Cost Price",
+					"Petrie",
+					"Bunda",
+					"Con",
+					"Franklin",
+					"Web",
+					"Total",
+					"BCID",
+				},
+				Rows: nochangeData,
+			},
 		}
+
 		log.Println(data)
 		return c.Render("partials/collapsable-table", data, "layout")
 	})

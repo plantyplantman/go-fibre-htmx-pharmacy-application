@@ -35,23 +35,23 @@ func (ps Products) ToTable(page, limit int) *fiber.Map {
 }
 
 type Product struct {
-	Sku             string           `json:"sku"`
-	ProdName        string           `json:"product_name"`
-	Price           float64          `json:"price"`
-	CostPrice       float64          `json:"cost_price"`
-	OnWeb           int              `json:"on_web"`
-	IsVariant       bool             `json:"is_variant"`
-	BCID            string           `json:"bcid"`
-	StockInfomation StockInformation `json:"stock_information"`
+	Sku             string           `json:"sku" csv:"sku"`
+	ProdName        string           `json:"product_name" csv:"product_name"`
+	Price           float64          `json:"price" csv:"price"`
+	CostPrice       float64          `json:"cost_price" csv:"cost_price"`
+	OnWeb           int              `json:"on_web" csv:"on_web"`
+	IsVariant       bool             `json:"is_variant" csv:"is_variant"`
+	BCID            string           `json:"bcid" csv:"bcid"`
+	StockInfomation StockInformation `json:"stock_information" csv:"soh"`
 }
 
 type StockInformation struct {
-	Petrie   int `json:"petrie"`
-	Bunda    int `json:"bunda"`
-	Con      int `json:"con"`
-	Franklin int `json:"franklin"`
-	Web      int `json:"web"`
-	Total    int `json:"total"`
+	Petrie   int `json:"petrie" csv:"petrie"`
+	Bunda    int `json:"bunda" csv:"bunda"`
+	Con      int `json:"con" csv:"con"`
+	Franklin int `json:"franklin" csv:"franklin"`
+	Web      int `json:"web" csv:"web"`
+	Total    int `json:"total" csv:"total"`
 }
 
 func (p *Product) FromEntity(ep *entities.Product) {
@@ -67,16 +67,27 @@ func (p *Product) FromEntity(ep *entities.Product) {
 		switch si.Location {
 		case "petrie":
 			p.StockInfomation.Petrie = si.Soh
+			p.StockInfomation.Total = p.StockInfomation.Total + roundNegativeToZero(si.Soh)
 		case "bunda":
 			p.StockInfomation.Bunda = si.Soh
+			p.StockInfomation.Total = p.StockInfomation.Total + roundNegativeToZero(si.Soh)
 		case "con":
 			p.StockInfomation.Con = si.Soh
+			p.StockInfomation.Total = p.StockInfomation.Total + roundNegativeToZero(si.Soh)
 		case "franklin":
 			p.StockInfomation.Franklin = si.Soh
+			p.StockInfomation.Total = p.StockInfomation.Total + roundNegativeToZero(si.Soh)
 		case "web":
 			p.StockInfomation.Web = si.Soh
 		}
 	}
+}
+
+func roundNegativeToZero(i int) int {
+	if i < 0 {
+		return 0
+	}
+	return i
 }
 
 func (p *Product) ToEntity() *entities.Product {
@@ -126,6 +137,24 @@ func (p *Product) ToTableRow() []string {
 		strconv.Itoa(p.StockInfomation.Web),
 		strconv.Itoa(p.StockInfomation.Total),
 		p.BCID,
+	}
+}
+
+func (p *Product) ToPresenterRow() Row {
+	return Row{
+		Cells: []string{
+			p.Sku,
+			p.ProdName,
+			strconv.FormatFloat(p.Price, 'f', 2, 64),
+			strconv.FormatFloat(p.CostPrice, 'f', 2, 64),
+			strconv.Itoa(p.StockInfomation.Petrie),
+			strconv.Itoa(p.StockInfomation.Bunda),
+			strconv.Itoa(p.StockInfomation.Con),
+			strconv.Itoa(p.StockInfomation.Franklin),
+			strconv.Itoa(p.StockInfomation.Web),
+			strconv.Itoa(p.StockInfomation.Total),
+			p.BCID,
+		},
 	}
 }
 

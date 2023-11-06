@@ -87,7 +87,19 @@ func RemoveSaleCategories(ids []int) []int {
 		}
 	}
 
-	return retv
+	return unique(retv)
+}
+
+func unique(intSlice []int) []int {
+	keys := make(map[int]bool)
+	list := []int{}
+	for _, entry := range intSlice {
+		if _, value := keys[entry]; !value {
+			keys[entry] = true
+			list = append(list, entry)
+		}
+	}
+	return list
 }
 
 func (cat *Category) GetParent(c *BigCommerceClient) (Category, error) {
@@ -106,16 +118,16 @@ func (cat *Category) GetChildren(c *BigCommerceClient) ([]Category, error) {
 	return c.GetCategories(map[string]string{"parent_id": fmt.Sprint(cat.ID)})
 }
 
-func (cat *Category) GetAllChildren(c *BigCommerceClient) ([]Category, error) {
+func (cat *Category) GetAllChildren(c *BigCommerceClient) ([]*Category, error) {
 	children, err := cat.GetChildren(c)
 	if err != nil {
 		return nil, err
 	}
 
-	var allChildren []Category
+	var allChildren []*Category
 
 	for _, child := range children {
-		allChildren = append(allChildren, child)
+		allChildren = append(allChildren, &child)
 		grandChildren, err := child.GetAllChildren(c) // recursive call
 		if err != nil {
 			return nil, err
@@ -124,6 +136,23 @@ func (cat *Category) GetAllChildren(c *BigCommerceClient) ([]Category, error) {
 	}
 
 	return allChildren, nil
+}
+
+func (cat *Category) GetAllChildren2(c *BigCommerceClient) ([]Category, error) {
+	children, err := cat.GetChildren(c)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, child := range children {
+		grandChildren, err := child.GetAllChildren2(c) // recursive call
+		if err != nil {
+			return nil, err
+		}
+		children = append(children, grandChildren...)
+	}
+
+	return children, nil
 }
 
 type CategoriesSlice []Category

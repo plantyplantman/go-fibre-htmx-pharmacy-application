@@ -170,11 +170,15 @@ func WithUpdateProductCategories(catIDs []int) ProductUpdateOptFn {
 func WithUpdateProductCategoryIsRetired(b bool) ProductUpdateOptFn {
 	return func(opt *ProductUpdateOpts) map[string]any {
 		if b {
-			return map[string]any{"categories": append(opt.Categories, RETIRED_PRODUCTS)}
+			cats := map[string]any{"categories": append(opt.Categories, RETIRED_PRODUCTS)}
+			opt.Categories = cats["categories"].([]int)
+			return cats
 		} else {
-			return map[string]any{"categories": lo.Filter(opt.Categories, func(i int, _ int) bool {
+			cats := map[string]any{"categories": lo.Filter(opt.Categories, func(i int, _ int) bool {
 				return i != RETIRED_PRODUCTS
 			})}
+			opt.Categories = cats["categories"].([]int)
+			return cats
 		}
 	}
 }

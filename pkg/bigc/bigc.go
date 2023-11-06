@@ -255,12 +255,36 @@ func (c BigCommerceClient) CreateCategory(categoryReq Category) (*Category, erro
 	return &resp.Data, nil
 }
 
-func (c BigCommerceClient) UpdateCategory(catID int, categoryReq Category) (*Category, error) {
-	data, err := json.Marshal(categoryReq)
+func WithUpdateDesc(desc string) func(*Category) *Category {
+	return func(cat *Category) *Category {
+		cat.Description = desc
+		return cat
+	}
+}
+
+func WithUpdateMetaDesc(meta string) func(*Category) *Category {
+	return func(cat *Category) *Category {
+		cat.MetaDescription = meta
+		return cat
+	}
+}
+
+func WithUpdateMetaKeywords(keywords []string) func(*Category) *Category {
+	return func(cat *Category) *Category {
+		cat.MetaKeywords = keywords
+		return cat
+	}
+}
+
+func (c BigCommerceClient) UpdateCategory(cat *Category, opts ...func(*Category) *Category) (*Category, error) {
+	for _, o := range opts {
+		o(cat)
+	}
+	data, err := json.Marshal(cat)
 	if err != nil {
 		return nil, err
 	}
-	url := GetUrl(c.BaseURL, "/catalog/categories/"+fmt.Sprint(catID), map[string]string{})
+	url := GetUrl(c.BaseURL, "/catalog/categories/"+fmt.Sprint(cat.ID), map[string]string{})
 	req, err := http.NewRequest("PUT", url, bytes.NewBuffer(data))
 	if err != nil {
 		return nil, err

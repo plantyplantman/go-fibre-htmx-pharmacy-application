@@ -84,6 +84,12 @@ func WithSkus(skus ...string) func(*gorm.DB) *gorm.DB {
 	}
 }
 
+func WithBCIDs(ids ...string) func(*gorm.DB) *gorm.DB {
+	return func(db *gorm.DB) *gorm.DB {
+		return db.Where("bc_id IN ?", ids)
+	}
+}
+
 func WithStockedOnWeb(ctx *fiber.Ctx) func(*gorm.DB) *gorm.DB {
 	return func(db *gorm.DB) *gorm.DB {
 		q := ctx.Query("includeNotStockedWeb")

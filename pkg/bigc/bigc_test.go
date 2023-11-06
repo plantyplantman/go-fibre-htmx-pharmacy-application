@@ -54,3 +54,16 @@ func recurse(c *bigc.BigCommerceClient, id int, path string, m map[int]string) m
 
 	return m
 }
+
+func TestGetAllChildren2(t *testing.T) {
+	c := bigc.MustGetClient()
+	cat, err := c.GetCategoryFromID(0)
+	if err != nil {
+		t.Fatal(err)
+	}
+	cats, err := cat.GetAllChildren2(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	fmt.Println(len(cats))
+}

@@ -1,4 +1,10 @@
 <div id="result">
+
+<style>
+    .red {
+        border: 4px solid red;
+    }
+</style>
     <div class="join join-vertical w-full">
         {{range $key, $value := . }}
         <div class="collapse collapse-arrow join-item border border-base-300">
@@ -20,9 +26,9 @@
                     </thead>
                     <tbody>
                         {{ range $row := $value.Rows }}
-                        <tr class="{{$row.Class}}">
-                            {{ range $cell := $row }}
-                            <td>{{ $cell }}</td>
+                        <tr class="{{$row.ClassName}}">
+                            {{ range $cell := $row.Cells }}
+                            <td >{{ $cell }}</td>
                             {{ end }}
                         </tr>
                         {{ end }}

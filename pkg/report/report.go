@@ -52,7 +52,7 @@ func (psls ProductStockLists) Combine() *CombinedProductStockList {
 			case "con":
 				skuMap[line.Sku].Con = line.Qty
 			}
-			skuMap[line.Sku].Total += roundNegativeToZero(line.Qty)
+			skuMap[line.Sku].Total = skuMap[line.Sku].Total + roundNegativeToZero(line.Qty)
 		}
 	}
 
