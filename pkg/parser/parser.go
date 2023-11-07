@@ -25,12 +25,12 @@ type Parser interface {
 	Parse(interface{}) error
 }
 
-func NewParser(file *os.File, opts ...ParserOption) (Parser, error) {
+func NewCsvParser(file *os.File, opts ...ParserOption) (Parser, error) {
 	if file == nil {
 		return nil, &InvalidFileError{msg: "file is nil"}
 	}
 
-	p := parser{
+	p := csvParser{
 		file: file,
 		opts: parserOpts{
 			comma:          '\t',
@@ -44,7 +44,7 @@ func NewParser(file *os.File, opts ...ParserOption) (Parser, error) {
 	return &p, nil
 }
 
-type parser struct {
+type csvParser struct {
 	file *os.File
 	opts parserOpts
 }
@@ -58,7 +58,7 @@ type parserOpts struct {
 
 type ParserOption func(*parserOpts)
 
-func (p *parser) Parse(dst interface{}) error {
+func (p *csvParser) Parse(dst interface{}) error {
 	if p.opts.isMultistore {
 		t, err := time.Parse("060102", "231030")
 		if err != nil {

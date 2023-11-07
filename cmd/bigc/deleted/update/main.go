@@ -168,7 +168,7 @@ func mustParseProductFile(path string) *report.ProductFile {
 	}
 
 	var p parser.Parser
-	if p, err = parser.NewParser(f); err != nil {
+	if p, err = parser.NewCsvParser(f); err != nil {
 		log.Fatal(err)
 	}
 

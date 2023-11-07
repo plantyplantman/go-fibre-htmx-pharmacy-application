@@ -178,7 +178,7 @@ func mustParseProductFile(path string) *report.ProductFile {
 	}
 
 	var p parser.Parser
-	if p, err = parser.NewParser(f); err != nil {
+	if p, err = parser.NewCsvParser(f); err != nil {
 		log.Fatal(err)
 	}
 
@@ -220,7 +220,7 @@ func mustParseProductRetailList(path string) *report.ProductRetailList {
 		log.Fatal(err)
 	}
 
-	p, err := parser.NewParser(f)
+	p, err := parser.NewCsvParser(f)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -294,7 +294,7 @@ func mustParseProductStockList(path string) []*report.ProductStockList {
 			defer file.Close()
 
 			var p parser.Parser
-			if p, err = parser.NewParser(file); err != nil {
+			if p, err = parser.NewCsvParser(file); err != nil {
 				log.Fatal(err)
 			}
 

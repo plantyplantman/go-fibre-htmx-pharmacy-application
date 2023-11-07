@@ -19,7 +19,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	p, err := parser.NewParser(f)
+	p, err := parser.NewCsvParser(f)
 	if err != nil {
 		log.Fatal(err)
 	}

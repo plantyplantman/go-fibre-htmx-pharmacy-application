@@ -18,7 +18,7 @@ func TestParser__prlwgp(t *testing.T) {
 	}
 	defer f.Close()
 
-	p, err := parser.NewParser(f)
+	p, err := parser.NewCsvParser(f)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -43,7 +43,7 @@ func TestParser__psl(t *testing.T) {
 	}
 	defer f.Close()
 
-	p, err := parser.NewParser(f)
+	p, err := parser.NewCsvParser(f)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func TestParser__ms(t *testing.T) {
 	}
 	defer f.Close()
 
-	p, err := parser.NewParser(f, parser.IsMultistore(true))
+	p, err := parser.NewCsvParser(f, parser.IsMultistore(true))
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -97,7 +97,7 @@ func TestParser_pf(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	p, err := parser.NewParser(f)
+	p, err := parser.NewCsvParser(f)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -134,7 +134,7 @@ func TestParser__nosr(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	p, err := parser.NewParser(f)
+	p, err := parser.NewCsvParser(f)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -150,5 +150,26 @@ func TestParser__nosr(t *testing.T) {
 
 	for _, l := range nosr {
 		fmt.Printf("\n%+v", l)
+	}
+}
+
+func TestParser__xml(t *testing.T) {
+	b, err := os.ReadFile("C:/Users/admin/source/repos/minfos-test/minfos-test/bin/Debug/231031__petrie__promos.xml")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p := parser.NewXmlParser(b)
+	r := report.Campaigns{}
+	err = p.Parse(&r)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	for _, o := range r.Campaign.Offers.Offer {
+		fmt.Println(o.OfferName)
+		// for _, p := range o.Products.Product {
+		// 	fmt.Println(p.EAN, "\t", p.ProductName, "\t", p.OfferPrice)
+		// }
 	}
 }

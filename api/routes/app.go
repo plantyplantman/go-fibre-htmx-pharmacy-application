@@ -65,7 +65,7 @@ func AppRouter(f fiber.Router, service product.Service) {
 		}
 		defer f.Close()
 
-		p, err := parser.NewParser(f, parser.IsMultistore(true))
+		p, err := parser.NewCsvParser(f, parser.IsMultistore(true))
 		if err != nil {
 			log.Println(err)
 			return err
