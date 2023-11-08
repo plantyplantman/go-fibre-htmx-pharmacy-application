@@ -36,15 +36,15 @@ type Campaigns struct {
 				Products            struct {
 					Text    string `xml:",chardata" json:"text,omitempty"`
 					Product []struct {
-						Text           string `xml:",chardata" json:"text,omitempty"`
-						EAN            string `xml:"EAN"`
-						MNPN           string `xml:"MNPN"`
-						ProductName    string `xml:"ProductName"`
-						Cost           string `xml:"Cost"`
-						OfferPrice     string `xml:"OfferPrice"`
-						QualifyingItem string `xml:"QualifyingItem"`
-						DiscountItem   string `xml:"DiscountItem"`
-						ProjSalesQty   string `xml:"ProjSalesQty"`
+						Text           string  `xml:",chardata" json:"text,omitempty"`
+						EAN            string  `xml:"EAN"`
+						MNPN           string  `xml:"MNPN"`
+						ProductName    string  `xml:"ProductName"`
+						Cost           string  `xml:"Cost"`
+						OfferPrice     float64 `xml:"OfferPrice"`
+						QualifyingItem string  `xml:"QualifyingItem"`
+						DiscountItem   string  `xml:"DiscountItem"`
+						ProjSalesQty   string  `xml:"ProjSalesQty"`
 					} `xml:"Product"`
 				} `xml:"Products"`
 			} `xml:"Offer"`

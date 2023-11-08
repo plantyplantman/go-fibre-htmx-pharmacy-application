@@ -25,11 +25,6 @@ func main() {
 		log.Fatalln("TEST_NEON_CONNECTION_STRING not set")
 	}
 
-	// var ZihanFilesPath = `/mnt/c/Users/admin/Develin Management Dropbox/Zihan/files/`
-	// var psls report.ProductStockLists = parseProductStockList(filepath.Join(ZihanFilesPath, `in/231025`))
-	// prl := mustParseProductRetailList(filepath.Join(ZihanFilesPath, `in/231025/231025__petrie__prlwgp.TXT`))
-	// pf := mustParseProductFile(filepath.Join(ZihanFilesPath, `in/231025/231025__web__pf.tsv`))
-
 	var date = time.Now().Format("060102")
 	var ZihanFilesPath = `C:\Users\admin\Develin Management Dropbox\Zihan\files\`
 	var inPath = filepath.Join(ZihanFilesPath, `in\`+date)
@@ -41,11 +36,6 @@ func main() {
 	pf := mustParseProductFile(filepath.Join(inPath, date+`__web__pf.tsv`))
 
 	var products = NewProducts(psls, prl, pf)
-	err := export(products, outFilePath)
-	if err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("exported to", outFilePath)
 
 	// DB, err := gorm.Open(postgres.Open(connString), &gorm.Config{})
 	// if err != nil {
@@ -58,12 +48,11 @@ func main() {
 	// 	log.Fatalln(err)
 	// }
 
-	// p := &entities.Product{Sku: "1234"}
-	// if err := DB.First(p); err != nil {
-	// 	log.Fatalln(err)
-	// }
-
-	// fmt.Printf("%s, %s", p.Sku, p.Name)
+	err := export(products, outFilePath)
+	if err != nil {
+		log.Fatalln(err)
+	}
+	log.Println("exported to", outFilePath)
 }
 
 func export(products []*entities.Product, path string) error {

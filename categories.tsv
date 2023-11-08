@@ -1,0 +1,499 @@
+31 	 Pharmacy
+32 	 Vitamins & Nutrition
+33 	 Beauty & Skin
+34 	 Bath & Body
+35 	 Baby
+36 	 Living
+38 	 First Aid & Sport
+39 	 Foot & Leg Care
+40 	 Covid-19
+42 	 WomenΓÇÖs Health
+43 	 MenΓÇÖs Health
+44 	 Health Concerns
+45 	 Oral Care
+46 	 Aching Joints
+47 	 Braces
+48 	 Burns & Bites
+50 	 General First Aid
+51 	 Hot & Cold Packs
+52 	 Hydration
+53 	 Mouthguards
+54 	 Physio supports
+57 	 Tapes
+58 	 Wound care
+59 	 Antifungals
+60 	 Wart Preparations
+61 	 Blisters & Corns
+63 	 Footwear
+64 	 Comfortable Feet
+66 	 Orthotics & Insoles
+68 	 Masks
+69 	 Hand Sanitisers
+70 	 Gloves & shields
+71 	 Alcohol Wipes & Sprays
+72 	 Daily Wellness and Energy
+73 	 Feminine Hygiene
+74 	 Libido and Sexual health
+75 	 Menopause
+77 	 PMS
+81 	 Urinary Support
+83 	 Hair Loss
+84 	 Heart health
+85 	 Prostate
+89 	 Asthma
+92 	 Eczema & Psoriasis
+93 	 Eye & Ear Care
+94 	 Health Devices
+95 	 Heart Health
+96 	 Mobility & Daily living aids
+97 	 Winter Pain Relief
+100 	 Sleep
+101 	 Smoking Cessation
+102 	 Stomach
+104 	 Baby's Teething
+105 	 Cold Sores
+106 	 Dental Floss, Picks & Devices
+107 	 Dentures
+108 	 Dry Mouth
+109 	 Dental Guards
+110 	 Mouthwash & Fresh Breath
+111 	 Natural Oral care
+112 	 Orthodontics
+113 	 Oral Pain relief
+117 	 Throat sprays
+142 	 Promotions
+143 	 20% Off Sale
+146 	 Productsale--20% Off
+147 	 Facial Care
+148 	 Scrubs & Peels
+149 	 Skincare
+150 	 Sensitive Skin
+151 	 Acne
+153 	 Moisturisers & Creams
+154 	 Masks
+156 	 Food & Nutrition
+157 	 Teas, Drinks & Tonics
+160 	 Cough & Cold
+161 	 Sore Throat
+163 	 Urinary Support
+170 	 Sleep
+171 	 Pillowcase
+173 	 Gifts
+174 	 Eye Masks
+175 	 Hair Care
+176 	 Hair Accessories & Brushes
+181 	 Pregnancy & Conception
+186 	 Lipcare
+190 	 Breastfeeding
+191 	 Creams & Nursing Pads
+193 	 Australian Beauty
+194 	 Natural Skincare
+195 	 Mum's Skincare
+196 	 Body
+197 	 Hand & Nail
+198 	 Hand & Nail Creams
+199 	 Makeup
+200 	 Lipstick
+201 	 Natural Makeup
+202 	 Bath
+203 	 Bath Salts & Bubbles
+205 	 Soap
+206 	 Eczema & Psoriasis
+208 	 Tanning
+209 	 Tanning
+210 	 Self Tan
+214 	 Natural Tanning Products
+216 	 Cleansers
+217 	 Makeup Remover
+220 	 Men's Bath & Body
+222 	 Suncare
+223 	 Body Suncare
+224 	 Suncare
+225 	 Natural Sun
+226 	 Baby Sunscreen
+227 	 Natural Hair Care
+228 	 Shampoos & Conditioners
+229 	 Natural Cold & Flu
+230 	 Natural Pain Relief & Remedies
+237 	 Serums & Oils
+238 	 Active Skincare
+244 	 Eyecreams & Treatments
+245 	 Sunscreen
+246 	 Face Suncare
+249 	 Collagen & Gelatin
+250 	 Health Supplements
+251 	 Hair, Skin & Nails
+254 	 General Makeup
+256 	 Baby Formula & Nutrition
+257 	 Baby Formula
+258 	 Food for Babies with Allergies
+279 	 Sexual Health
+280 	 Condoms
+282 	 Vitamins
+283 	 Homeopathy & Tissue Salts
+284 	 Honey
+285 	 Baking Mixes
+286 	 Protein & Sports Performance
+287 	 Weight Management
+288 	 Korean Beauty
+294 	 Pregnancy & Conception
+311 	 Travel
+324 	 Travel Accessories
+328 	 Toners & Mists
+330 	 Protein
+331 	 Sleep Support
+333 	 Diet Snacks
+336 	 Sports Bars & Snacks
+351 	 Australian Made
+352 	 Productsale--Australian Made
+355 	 Treatments & Colours
+360 	 Vegan Skin
+361 	 Productsale--Vegan
+363 	 Productsale--Natural
+365 	 Bath & Body Gifts
+366 	 Gifts Under $50
+367 	 Candles & Home Fragrances
+368 	 Diffusers
+369 	 Candles
+370 	 Kitchen & Laundry
+371 	 Gifts
+373 	 Scent Stems
+375 	 Weight Loss supplements
+381 	 Weight Loss Accessories
+382 	 Immunity
+383 	 Digestive Health
+386 	 After Sun Care
+387 	 Sun & Swim
+388 	 Suncare
+394 	 Body
+396 	 Therapeutic Skincare
+397 	 Baby Bath & Body
+398 	 Baby Bath & Bubbles
+399 	 Baby Creams
+400 	 Baby Sensitive Skin
+401 	 Baby Natural Skin
+402 	 Hand Sanitiser
+403 	 Body Wash
+404 	 Hair Styling Products & Treatments
+407 	 Nasal Sprays & Sinus Rinses
+408 	 Baby Medicine
+410 	 Allergy & Hayfever
+411 	 Aromatherapy
+413 	 Fragrance
+414 	 Bath Accessories
+415 	 Toiletry Bags
+416 	 Garden
+417 	 Room Sprays
+418 	 Men's Fragrance
+421 	 Men's Skin
+422 	 Men's Shaving
+423 	 Hair Removal
+424 	 Shaving
+425 	 Cleaning
+426 	 Eco Living
+427 	 General Kitchen & Laundry
+431 	 Feeding & Teething
+432 	 Baby Bottles & Feeding
+433 	 Breast Pumps & Devices
+434 	 Baby Bottoms
+435 	 Baby Nappy Rash Creams
+436 	 Antiseptic Spray & Cream
+437 	 Foot Creams & Treatments
+439 	 Skin
+440 	 Baby Gels & Chews
+441 	 Teething
+442 	 Soothers
+443 	 Baby Ears & Eyes
+444 	 Breastfeeding
+445 	 Cold & Flu Medicine
+446 	 General Digestive
+447 	 Sensitive Skin
+448 	 Baby Sensitive Skin
+449 	 Baby Wipes
+450 	 Antacids
+451 	 Nappies
+452 	 Baby Accessories
+453 	 Nappies
+454 	 Toys & Gifts
+455 	 Clothing & Accessories
+456 	 Hats & Gloves
+457 	 Footwear
+460 	 Ear Protection
+461 	 Petcare
+462 	 General Petcare
+463 	 Suncare
+465 	 Brushes & Combs
+466 	 Hand & Nail Accessories
+467 	 Thermometers
+468 	 Multivitamins
+469 	 Women's Vitamins & Supplements
+470 	 Breastfeeding
+471 	 Vitamins & Supplements
+472 	 Pregnancy & Preconception
+474 	 Men's Vitamins & Supplements
+475 	 HOLD
+477 	 Active Skin
+479 	 Breastfeeding Nutrition
+480 	 Therapeutic Hair Care
+481 	 Hair Loss
+486 	 Men's Hair Loss
+488 	 Headlice
+489 	 Insect Repellent & Citronella
+490 	 Sensitive Scalp & Dandruff
+491 	 Hair Loss
+494 	 Bone Health
+497 	 Vinegars & Oils
+498 	 Nutritional Powders
+509 	 Joint Health
+513 	 ChildrenΓÇÖs & BabyΓÇÖs Vitamins & Supplements
+514 	 Eye Health
+516 	 Iron
+520 	 Zinc
+521 	 Calcium
+522 	 Magnesium
+523 	 Vitamin D
+524 	 Pain & Fever Relief
+525 	 Ibuprofen
+526 	 Muscle Health
+527 	 Meal Replacement
+536 	 Menopause
+537 	 Tattoo Aftercare
+540 	 Bath Oils
+541 	 Therapeutic Skin
+542 	 Body Scrubs
+543 	 Women's Fragrance
+546 	 Grooming
+549 	 Skincare Tools
+552 	 Sun Protection
+558 	 Feminine Care
+563 	 Maseur Sandals
+564 	 Deodorant
+565 	 General Bath Accessories
+566 	 Medical Socks & Hosiery
+567 	 Fashion Socks & Hosiery
+568 	 Body Lotions & Creams
+569 	 Roll-on Deodorants
+570 	 Natural Deodorants
+571 	 Spray Deodorants
+572 	 Face
+573 	 Lips
+575 	 Tanning Preparation & Tools
+576 	 Body Oil
+578 	 Headbands
+579 	 Body Moisturisers
+580 	 Solid Deodorants
+581 	 Dry Shampoo
+583 	 Osteo Pain
+585 	 Pre & Post Work Out
+586 	 Sports Supplements
+590 	 Vegan Makeup
+591 	 Brushes & Tools
+592 	 Eyes
+593 	 Brows
+595 	 Makeup Kits & Sets
+596 	 Lubricants
+614 	 Women's General Health & Wellbeing
+621 	 Eye health
+626 	 Probiotic
+627 	 Acne
+629 	 Mood & Stress
+630 	 Hydration
+631 	 Hydration
+632 	 Bowel
+636 	 Cups & Cutlery
+642 	 Snoring
+643 	 Fibre Supplements
+645 	 Urinary Support
+647 	 Memory & Cognition
+649 	 Vitamin C
+654 	 Dermaceuticals
+655 	 Post Shave
+656 	 Hand & Nail Treatments
+658 	 Breathing
+659 	 Grinding
+664 	 Reef Friendly
+665 	 Productsale--Reef Friendly
+668 	 Productsale--Sale
+671 	 Productsale--Limited Edition
+673 	 Body Tape & tools
+681 	 Travel Toiletries
+683 	 Productsale--New
+685 	 Women's Accessories
+688 	 Accessories 
+689 	 Laxatives
+691 	 Clearance
+693 	 Sale
+696 	 Korean Masks
+703 	 Nail Polish
+706 	 Baby Powder
+710 	 Bathing Rituals Edit
+717 	 Body Spray & Tonics
+725 	 Productsale--Special Offer
+726 	 Period Pain
+727 	 PMS
+728 	 Devices
+730 	 Incontinence
+731 	 Vitamins Sale
+732 	 Productsale--30% Off
+736 	 Hair Electrical
+739 	 Travel Sickness
+741 	 General Health & Wellbeing
+743 	 Travel Health
+744 	 Productsale--GIFT WITH PURCHASE
+748 	 Clips
+749 	 Hairdressing Essentials
+750 	 Caps
+755 	 Ear Health
+756 	 Body Powder
+757 	 Men's Hair Styling
+760 	 Korean Skin Products
+761 	 Hair Strength
+764 	 Vitamin B
+767 	 Body Ointment
+768 	 Food Thickeners
+769 	 Body Bar
+772 	 Beauty Tools
+776 	 Men's Deodorants
+778 	 Men's Accessories & Toiletries
+780 	 Men's Hair Colours
+782 	 Gifts Under $20
+783 	 Hand Wash
+788 	 Inhalations
+790 	 Contact Lens care
+795 	 Worms
+797 	 General Korean Beauty
+811 	 Father's Day
+814 	 Men's Accessories
+816 	 Waxing
+817 	 Dressings & Bandages
+819 	 Underwear
+820 	 Leakproof Underwear
+823 	 Medical Socks & Hosiery
+824 	 Blood Pressure Monitors
+825 	 Heart Rate Monitors
+826 	 Blood Pressure Monitors
+838 	 30% Off Sale
+839 	 Socks
+848 	 Nebulisers
+849 	 General Asthma
+850 	 Monitors
+852 	 Christmas Gifts
+856 	 Hair Electrical
+864 	 Kid's Accessories
+865 	 40% Off Sale
+866 	 Productsale--40% Off
+869 	 50% Off Sale and Over
+870 	 Productsale--50% Off
+871 	 Kids Gifts
+872 	 $5 off
+873 	 Productsale--$5 off
+874 	 Pre Tan
+877 	 Gifts Under $10
+881 	 Slippers
+883 	 Blood Glucose Monitors
+887 	 Web Exclusive
+888 	 Productsale--Web Exclusive
+889 	 Tanning Maintenance
+892 	 Glasses
+893 	 Ear Plugs
+899 	 Christmas Clearance
+905 	 COVID-19 Rapid Antigen Tests
+983 	 COVID-19 Medicine Bag
+984 	 COVID-19 Protection
+1002 	 Gum
+1003 	 Productsale--No Click & Collect
+1005 	 Productsale--10% Off
+1006 	 Lunar New Year Sale
+1010 	 Thermometers & Oximeters
+1012 	 Productsale--60% Off
+1015 	 Moisturise
+1029 	 General
+1030 	 10% Off Sale
+1041 	 New
+1044 	 Plant Based Powders
+1049 	 Repellent & Bite Products For Mosquitos & Insects
+1050 	 Insect Repellent & Patches
+1051 	 Set sales
+1067 	 Drink Bottles & Lunch Boxes
+1068 	 Jars & Tins
+1069 	 Straws
+1074 	 Mother's Day
+1080 	 Chilblains
+1081 	 Cold Hands & Feet
+1082 	 Men's Underwear
+1086 	 Productsale--Buy 2 get 20% off
+1089 	 Food & Drinks
+1090 	 Confectionary
+1091 	 Tea & Coffee & Drinks
+1099 	 Women's Underwear
+1100 	 Loungewear
+1101 	 General
+1102 	 Women's Loungewear
+1103 	 Leggings
+1104 	 Men's Loungewear
+1108 	 Toothbrushes
+1109 	 Adult Toothbrushes 
+1110 	 Children's Toothbrushes 
+1112 	 Pastes & Mouthwash 
+1113 	 Adult Toothpastes
+1114 	 Children's Toothpastes
+1115 	 Whitening Toothpastes
+1116 	 Sensitive Teeth Toothpastes
+1117 	 Natural Toothpastes 
+1118 	 Natural Toothbrushes 
+1120 	 Mouth Ulcers
+1121 	 Floss
+1122 	 Interbrushes & Picks
+1124 	 Paracetamol
+1125 	 Naproxen
+1126 	 Diclofenac
+1127 	 Aspirin
+1128 	 Inflammation, Muscle & Joint Pain
+1180 	 Sleep Catalogue Edit
+1182 	 Gifts for Gardeners
+1183 	 Productsale--Practitioner Only
+1193 	 Male Libido
+1195 	 MenΓÇÖs General Health & Wellbeing
+1217 	 Gifts for Home Fragrances
+1219 	 Christmas Gifts for Her
+1220 	 Christmas Gifts for Him
+1221 	 Googles
+1228 	 Beach Towel
+1229 	 Beach Play Items
+1230 	 Retired Products 
+1240 	 Dry Cough
+1241 	 Digital Health
+1248 	 Medical Tests
+1256 	 Superfood Supplements
+1257 	 Green & Red Powders
+1259 	 Superfood Tablets
+1260 	 Other Superfoods
+1261 	 Minerals & Supplements
+1262 	 Vitamin E
+1263 	 Vitamin K
+1264 	 Fish Oil & Omega
+1265 	 Selenium
+1266 	 MenΓÇÖs Preconception
+1267 	 Prostate Health
+1268 	 ChildrenΓÇÖs Health & Wellbeing
+1269 	 Newborn Health
+1270 	 ChildrenΓÇÖs Digestion
+1271 	 ChildrenΓÇÖs Immunity
+1272 	 Mushroom Powders
+1273 	 Broths & Stocks
+1274 	 Stress & Anxiety
+1275 	 Foot Odour
+1276 	 Foot Accessories
+1284 	 Women's Underw
+1314 	 Women's Health
+1315 	 Feminine Hygiene
+1316 	 Paste & Mouthwash
+1317 	 Mouthwash & Fresh Breath
+1320 	 Eczema & Psoriasis
+1321 	 Libido & Sexual Health
+1322 	 Medical Socks & Hosiery
+1323 	 Travel Beauty Kit
+1324 	 Gifts for Foodies
+1325 	 Surgical Fasting
+1326 	 Gifts for Children
+1327 	 Stationery

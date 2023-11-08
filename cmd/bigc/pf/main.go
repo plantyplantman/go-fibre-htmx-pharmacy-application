@@ -2,6 +2,8 @@ package main
 
 import (
 	"log"
+	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/plantyplantman/bcapi/pkg/bigc"
@@ -14,6 +16,9 @@ func main() {
 	// path := filepath.Join(ZihanFilesPath, date+`\`, date+`__web__pf.tsv`)
 
 	path := date + `__web__pf.tsv`
+	if err := os.MkdirAll(filepath.Dir(path), 0770); err != nil {
+		log.Fatalln(err)
+	}
 	c := bigc.MustGetClient()
 
 	var (

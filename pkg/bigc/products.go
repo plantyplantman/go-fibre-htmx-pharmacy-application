@@ -283,9 +283,9 @@ func (c *BigCommerceClient) GetAllProducts(params map[string]string) ([]Product,
 	limit := 100
 	for {
 		pagination := map[string]string{
-			"page":    fmt.Sprint(page),
-			"limit":   fmt.Sprint(limit),
-			"include": "variants",
+			"page":  fmt.Sprint(page),
+			"limit": fmt.Sprint(limit),
+			// "include": "variants",
 		}
 		maps.Copy(params, pagination)
 		products, err := c.GetProducts(params)
@@ -354,6 +354,8 @@ func (c *BigCommerceClient) UpdateProduct(og *Product, optFuncs ...ProductUpdate
 			updateFields[k] = v
 		}
 	}
+
+	o.Categories = unique(o.Categories)
 
 	data, err := json.Marshal(o)
 	if err != nil {

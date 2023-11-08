@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"os"
+	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
@@ -27,7 +28,8 @@ func main() {
 
 	c := bigc.MustGetClient()
 
-	pfPath := `C:\Users\admin\Develin Management Dropbox\Zihan\files\in\231101\231101__web__pf.tsv`
+	var date = time.Now().Format("060102")
+	pfPath := filepath.Join(`C:\Users\admin\Develin Management Dropbox\Zihan\files\in`, date, date+`__web__pf.tsv`)
 	pf := mustParseProductFile(pfPath)
 
 	psM := lo.Associate(pf.Lines, func(l *report.ProductFileLine) (string, *report.ProductFileLine) {

@@ -2,6 +2,9 @@ package bigc
 
 import (
 	"fmt"
+	"slices"
+
+	"github.com/samber/lo"
 )
 
 const (
@@ -33,11 +36,12 @@ const (
 	PRODUCTSALE_PRAC_ONLY     = 1183
 	CHRISTMAS_CLEARANCE       = 899
 	WEB_EXCLUSIVE             = 887
-	PROMO_SET_SALES           = 1052
+	PROMO_SET_SALES           = 1051
 	PROMO_AUSMADE             = 351
 	PROMO_SALE                = 142
 	RETIRED_PRODUCTS          = 1230
 	NEW                       = 1041
+	CLEARANCE                 = 691
 )
 
 func getSaleCategoryIDs() []int {
@@ -73,21 +77,16 @@ func getSaleCategoryIDs() []int {
 		PROMO_SET_SALES,
 		PROMO_AUSMADE,
 		PROMO_SALE,
+		CLEARANCE,
 	}
 }
 
 func RemoveSaleCategories(ids []int) []int {
-	var retv []int
 	saleIds := getSaleCategoryIDs()
-	for _, id := range ids {
-		for _, i := range saleIds {
-			if id != i {
-				retv = append(retv, id)
-			}
-		}
-	}
 
-	return unique(retv)
+	return lo.Filter(ids, func(id int, _ int) bool {
+		return !slices.Contains(saleIds, id)
+	})
 }
 
 func unique(intSlice []int) []int {

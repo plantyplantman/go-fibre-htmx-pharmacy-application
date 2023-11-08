@@ -166,10 +166,52 @@ func TestParser__xml(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	var skuM = make(map[string][]string, 0)
+	for _, o := range r.Campaign.Offers.Offer {
+		if o.OfferName == "Aug Sept 20%" ||
+			o.OfferName == "Aug Sept 10%" ||
+			o.OfferName == "Catalouge Set SAles" ||
+			o.OfferName == "Aug Sept Oct Vitamin Promo" ||
+			o.OfferName == "August Sept Oct Perm Promo" ||
+			o.OfferName == "40% off skincare" ||
+			o.OfferName == "Deleted Promo July 60% off" ||
+			o.OfferName == "Deleted Promo July 50% off" ||
+			o.OfferName == "Deleted Promo July 40% off" ||
+			o.OfferName == "Deleted July Promo 30% off" ||
+			o.OfferName == "Deleted Promo July 20% off" {
+			var tmp []string
+			for _, p := range o.Products.Product {
+				tmp = append(tmp, p.EAN)
+			}
+			skuM[o.OfferName] = tmp
+		}
+	}
+
+	if len(skuM) != 11 {
+		for k := range skuM {
+			fmt.Println(k)
+		}
+		t.Fatalf("expected len(skuM) == 11 got %d", len(skuM))
+	}
+}
+
+func TestParser__xml2(t *testing.T) {
+	path := `C:\Users\admin\Downloads\promotionsnovemberdecember06112023 (1).xml`
+
+	b, err := os.ReadFile(path)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	p := parser.NewXmlParser(b)
+	r := report.Campaigns{}
+	err = p.Parse(&r)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	for _, o := range r.Campaign.Offers.Offer {
 		fmt.Println(o.OfferName)
-		// for _, p := range o.Products.Product {
-		// 	fmt.Println(p.EAN, "\t", p.ProductName, "\t", p.OfferPrice)
-		// }
 	}
+
 }
