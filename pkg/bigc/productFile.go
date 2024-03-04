@@ -16,6 +16,7 @@ type ProductFileLine struct {
 	Price     float64
 	Soh       int
 	IsVariant bool
+	ImageURL  string
 }
 
 func (pf *ProductFile) Export(path string) error {
@@ -68,15 +69,18 @@ func (pf *ProductFile) GetLineBySku(sku string) (*ProductFileLine, error) {
 	}
 }
 
-func (c *BigCommerceClient) GetProductFile() (*ProductFile, error) {
-	ps, err := c.GetAllProducts(map[string]string{})
+func (c *Client) GetProductFile() (*ProductFile, error) {
+	ps, err := c.GetAllProducts(map[string]string{"include": "variants,images"})
 	if err != nil {
 		return nil, err
 	}
 
 	var retv ProductFile
 	for _, p := range ps {
-		sku := p.Sku
+		sku := strings.TrimSpace(p.Sku)
+		if strings.Contains(sku, "-") || strings.Contains(sku, "Best Before") || strings.Contains(sku, "Expiry") {
+			continue
+		}
 		if sku == "" {
 			for _, v := range p.Variants {
 				var name string
@@ -92,10 +96,15 @@ func (c *BigCommerceClient) GetProductFile() (*ProductFile, error) {
 					Price:     v.Price,
 					Soh:       v.InventoryLevel,
 					IsVariant: true,
+					ImageURL:  v.ImageURL,
 				}
 				retv.Lines = append(retv.Lines, tmp)
 			}
 		} else {
+			imageUrl := ""
+			if len(p.Images) > 0 {
+				imageUrl = p.Images[0].ImageURL
+			}
 			tmp := ProductFileLine{
 				Id:        fmt.Sprint(p.ID),
 				Name:      p.Name,
@@ -103,6 +112,7 @@ func (c *BigCommerceClient) GetProductFile() (*ProductFile, error) {
 				Price:     p.Price,
 				Soh:       p.InventoryLevel,
 				IsVariant: false,
+				ImageURL:  imageUrl,
 			}
 			retv.Lines = append(retv.Lines, tmp)
 		}

@@ -186,7 +186,7 @@ type OrderProductsGetResp []struct {
 	EventDate             any    `json:"event_date,omitempty"`
 }
 
-func (c *BigCommerceClient) GetOrder(orderId int) (*Order, error) {
+func (c *Client) GetOrder(orderId int) (*Order, error) {
 	url := fmt.Sprintf("https://api.bigcommerce.com/stores/9wn8an8lno/v2/orders/%d", orderId)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -207,7 +207,7 @@ func (c *BigCommerceClient) GetOrder(orderId int) (*Order, error) {
 	return &resp, nil
 }
 
-func (c *BigCommerceClient) GetOrders(params map[string]string) (Orders, error) {
+func (c *Client) GetOrders(params map[string]string) (Orders, error) {
 	url := GetUrl("https://api.bigcommerce.com/stores/9wn8an8lno/v2", "/orders", params)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -228,7 +228,7 @@ func (c *BigCommerceClient) GetOrders(params map[string]string) (Orders, error) 
 	return resp, nil
 }
 
-func (c *BigCommerceClient) GetAllOrders(params map[string]string) (Orders, error) {
+func (c *Client) GetAllOrders(params map[string]string) (Orders, error) {
 	var retv Orders
 	page := 1
 	limit := 100
@@ -255,7 +255,7 @@ func (c *BigCommerceClient) GetAllOrders(params map[string]string) (Orders, erro
 	return retv, nil
 }
 
-func (c *BigCommerceClient) GetOrderProducts(orderId int) (*OrderProductsGetResp, error) {
+func (c *Client) GetOrderProducts(orderId int) (*OrderProductsGetResp, error) {
 	url := fmt.Sprintf("https://api.bigcommerce.com/stores/9wn8an8lno/v2/orders/%d/products", orderId)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {

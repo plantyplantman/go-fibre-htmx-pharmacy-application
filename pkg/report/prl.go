@@ -4,11 +4,11 @@ import (
 	"log"
 	"strconv"
 	"strings"
-	"time"
 
 	"github.com/plantyplantman/bcapi/api/presenter"
 	"github.com/plantyplantman/bcapi/pkg/bigc"
 	"github.com/plantyplantman/bcapi/pkg/product"
+	"github.com/samber/lo"
 )
 
 type ProductRetailList struct {
@@ -65,48 +65,53 @@ func (prl *ProductRetailList) ToSkuMap() map[string]*ProductRetailListLine {
 	return m
 }
 
-func (prl *ProductRetailList) NotOnSite(r product.Service) NotOnSiteReport {
-	notOnSiteReport := NotOnSiteReport{}
-
-	for _, l := range prl.Lines {
-		p := presenter.Product{Sku: l.Sku}
-		if err := r.FetchProduct(&p); err != nil {
-			log.Println(err)
-			continue
-		}
-
-		if p.OnWeb == 0 {
-			notOnSiteReportLine := NotOnSiteReportLine{
-				Sku:      l.Sku,
-				ProdName: l.ProdName,
-				Price:    l.Price.float64,
-				Source:   prl.Source,
-				Date:     DateTime{time.Now()},
-			}
-			notOnSiteReport = append(notOnSiteReport, notOnSiteReportLine)
-			continue
-		}
+func (prl *ProductRetailList) NotOnSite(r product.Service) (NotOnSiteReport, error) {
+	skuM := prl.ToSkuMap()
+	ps, err := r.FetchProducts(product.WithSkus(lo.Keys(skuM)...), product.WithStockInformation())
+	if err != nil {
+		return nil, err
 	}
-	return notOnSiteReport
+
+	var retv NotOnSiteReport = lo.FilterMap(ps, func(p *presenter.Product, _ int) (NotOnSiteReportLine, bool) {
+		return NotOnSiteReportLine{
+			Sku:              p.Sku,
+			ProdName:         p.ProdName,
+			Price:            p.Price,
+			StockInformation: p.StockInformation,
+			Source:           prl.Source,
+			Date:             DateTime{prl.Date},
+		}, p.StockInformation.Web == 0
+	})
+
+	return retv, nil
 }
 
-func (prl *ProductRetailList) Edited(c *bigc.BigCommerceClient, r product.Service) NotOnSiteReport {
+func (prl *ProductRetailList) Edited(c *bigc.Client, r product.Service) (NotOnSiteReport, error) {
 	notOnSiteReport := NotOnSiteReport{}
+	skuM := prl.ToSkuMap()
+	ps, err := r.FetchProducts(product.WithSkus(lo.Keys(skuM)...), product.WithStockInformation())
+	if err != nil {
+		return nil, err
+	}
+	pM := lo.Associate(ps, func(p *presenter.Product) (string, *presenter.Product) {
+		return p.Sku, p
+	})
 
 	for _, l := range prl.Lines {
-		p := presenter.Product{Sku: l.Sku}
-		if err := r.FetchProduct(&p); err != nil {
+		p, ok := pM[l.Sku]
+		if !ok {
 			log.Println(err)
 			continue
 		}
 
 		if p.OnWeb == 0 {
 			notOnSiteReportLine := NotOnSiteReportLine{
-				Sku:      l.Sku,
-				ProdName: l.ProdName,
-				Price:    l.Price.float64,
-				Source:   prl.Source,
-				Date:     DateTime{time.Now()},
+				Sku:              l.Sku,
+				ProdName:         l.ProdName,
+				StockInformation: p.StockInformation,
+				Price:            l.Price.float64,
+				Source:           prl.Source,
+				Date:             DateTime{prl.Date},
 			}
 			notOnSiteReport = append(notOnSiteReport, notOnSiteReportLine)
 			continue
@@ -137,7 +142,7 @@ func (prl *ProductRetailList) Edited(c *bigc.BigCommerceClient, r product.Servic
 			if _, err := c.UpdateVariant(original,
 				bigc.WithUpdateVariantPrice(l.Price.float64),
 				bigc.WithUpdateVariantCostPrice(p.CostPrice),
-				bigc.WithUpdateVariantInventoryLevel(p.StockInfomation.Total),
+				bigc.WithUpdateVariantInventoryLevel(p.StockInformation.Total),
 				bigc.WithUpdateVariantRetailPrice(0.0),
 			); err != nil {
 				log.Println(err)
@@ -160,34 +165,43 @@ func (prl *ProductRetailList) Edited(c *bigc.BigCommerceClient, r product.Servic
 		if _, err := c.UpdateProduct(original,
 			bigc.WithUpdateProductPrice(l.Price.float64),
 			bigc.WithUpdateProductCostPrice(p.CostPrice),
-			bigc.WithUpdateProductInventoryLevel(p.StockInfomation.Total),
+			bigc.WithUpdateProductInventoryLevel(p.StockInformation.Total),
 		); err != nil {
 			log.Println(err)
 			continue
 		}
 	}
 
-	return notOnSiteReport
+	return notOnSiteReport, nil
 }
 
-func (prl *ProductRetailList) Deleted(c *bigc.BigCommerceClient, r product.Service) NotOnSiteReport {
+func (prl *ProductRetailList) Deleted(c *bigc.Client, r product.Service) (NotOnSiteReport, error) {
 	notOnSiteReport := NotOnSiteReport{}
+	skuM := prl.ToSkuMap()
+	ps, err := r.FetchProducts(product.WithSkus(lo.Keys(skuM)...), product.WithStockInformation())
+	if err != nil {
+		return nil, err
+	}
+	psM := lo.Associate(ps, func(p *presenter.Product) (string, *presenter.Product) {
+		return p.Sku, p
+	})
 
 	for _, l := range prl.Lines {
-		var p = presenter.Product{Sku: l.Sku}
-		if err := r.FetchProduct(&p); err != nil {
-			log.Println(err)
+		p, ok := psM[l.Sku]
+		if !ok {
+			log.Printf("product not found in sku map. sku: %s", l.Sku)
 			continue
 		}
 
 		if p.OnWeb == 0 {
 			notOnSiteReport = append(notOnSiteReport, NotOnSiteReportLine{
-				Sku:      l.Sku,
-				ProdName: l.ProdName,
-				Price:    l.Price.float64,
-				Source:   prl.Source,
-				Action:   "",
-				Date:     DateTime{prl.Date},
+				Sku:              l.Sku,
+				ProdName:         l.ProdName,
+				Price:            l.Price.float64,
+				StockInformation: p.StockInformation,
+				Source:           prl.Source,
+				Action:           "",
+				Date:             DateTime{prl.Date},
 			})
 			continue
 		}
@@ -221,14 +235,14 @@ func (prl *ProductRetailList) Deleted(c *bigc.BigCommerceClient, r product.Servi
 				newSku = original.Sku
 			}
 
-			if p.StockInfomation.Total == 0 {
+			if p.StockInformation.Total == 0 {
 				if !strings.HasPrefix(newSku, "//") {
 					newSku = "/" + newSku
 				}
 				if _, err := c.UpdateVariant(original,
 					bigc.WithUpdateVariantPrice(l.Price.float64),
 					bigc.WithUpdateVariantCostPrice(p.CostPrice),
-					bigc.WithUpdateVariantInventoryLevel(p.StockInfomation.Total),
+					bigc.WithUpdateVariantInventoryLevel(p.StockInformation.Total),
 					bigc.WithUpdateVariantRetailPrice(0.0),
 					bigc.WithUpdateVariantSalePrice(0.0),
 					bigc.WithUpdateVariantPurchasingDisabled(true),
@@ -241,7 +255,7 @@ func (prl *ProductRetailList) Deleted(c *bigc.BigCommerceClient, r product.Servi
 				if _, err := c.UpdateVariant(original,
 					bigc.WithUpdateVariantPrice(l.Price.float64),
 					bigc.WithUpdateVariantCostPrice(p.CostPrice),
-					bigc.WithUpdateVariantInventoryLevel(p.StockInfomation.Total),
+					bigc.WithUpdateVariantInventoryLevel(p.StockInformation.Total),
 					bigc.WithUpdateVariantRetailPrice(0.0),
 					bigc.WithUpdateVariantSalePrice(0.0),
 					bigc.WithUpdateVariantSku(newSku),
@@ -264,7 +278,7 @@ func (prl *ProductRetailList) Deleted(c *bigc.BigCommerceClient, r product.Servi
 			continue
 		}
 
-		soh := p.StockInfomation.Total
+		soh := p.StockInformation.Total
 
 		var newSku string
 		if !strings.HasPrefix(original.Sku, "/") {
@@ -272,13 +286,13 @@ func (prl *ProductRetailList) Deleted(c *bigc.BigCommerceClient, r product.Servi
 		} else {
 			newSku = original.Sku
 		}
-		if p.StockInfomation.Total == 0 {
+		if p.StockInformation.Total == 0 {
 			if !strings.HasPrefix(newSku, "//") {
 				newSku = "/" + newSku
 			}
 		}
 
-		if p.StockInfomation.Total == 0 {
+		if p.StockInformation.Total == 0 {
 			if _, err := c.UpdateProduct(
 				original,
 				bigc.WithUpdateProductSku(newSku),
@@ -303,19 +317,34 @@ func (prl *ProductRetailList) Deleted(c *bigc.BigCommerceClient, r product.Servi
 			continue
 		}
 	}
-	return notOnSiteReport
+	return notOnSiteReport, nil
 }
 
-func DoMultistore(prlM map[string]*ProductRetailList, s product.Service, c *bigc.BigCommerceClient) NotOnSiteReport {
+func DoMultistore(prlM map[string]*ProductRetailList, s product.Service, c *bigc.Client) NotOnSiteReport {
 	var notOnSiteReport NotOnSiteReport
 	for k := range prlM {
 		switch k {
 		case "new":
-			notOnSiteReport = append(notOnSiteReport, prlM[k].NotOnSite(s)...)
+			nosr, err := prlM[k].NotOnSite(s)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			notOnSiteReport = append(notOnSiteReport, nosr...)
 		case "edited":
-			notOnSiteReport = append(notOnSiteReport, prlM[k].Edited(c, s)...)
+			nosr, err := prlM[k].Edited(c, s)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			notOnSiteReport = append(notOnSiteReport, nosr...)
 		case "clean":
-			notOnSiteReport = append(notOnSiteReport, prlM[k].Deleted(c, s)...)
+			nosr, err := prlM[k].Deleted(c, s)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+			notOnSiteReport = append(notOnSiteReport, nosr...)
 		default:
 			continue
 		}

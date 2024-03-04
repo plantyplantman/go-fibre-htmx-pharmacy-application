@@ -35,14 +35,14 @@ func (ps Products) ToTable(page, limit int) *fiber.Map {
 }
 
 type Product struct {
-	Sku             string           `json:"sku" csv:"sku"`
-	ProdName        string           `json:"product_name" csv:"product_name"`
-	Price           float64          `json:"price" csv:"price"`
-	CostPrice       float64          `json:"cost_price" csv:"cost_price"`
-	OnWeb           int              `json:"on_web" csv:"on_web"`
-	IsVariant       bool             `json:"is_variant" csv:"is_variant"`
-	BCID            string           `json:"bcid" csv:"bcid"`
-	StockInfomation StockInformation `json:"stock_information" csv:"soh"`
+	Sku              string           `json:"sku" csv:"sku"`
+	ProdName         string           `json:"product_name" csv:"product_name"`
+	Price            float64          `json:"price" csv:"price"`
+	CostPrice        float64          `json:"cost_price" csv:"cost_price"`
+	OnWeb            int              `json:"on_web" csv:"on_web"`
+	IsVariant        bool             `json:"is_variant" csv:"is_variant"`
+	BCID             string           `json:"bcid" csv:"bcid"`
+	StockInformation StockInformation `json:"stock_information" csv:"soh"`
 }
 
 type StockInformation struct {
@@ -66,19 +66,19 @@ func (p *Product) FromEntity(ep *entities.Product) {
 	for _, si := range ep.StockInformations {
 		switch si.Location {
 		case "petrie":
-			p.StockInfomation.Petrie = si.Soh
-			p.StockInfomation.Total = p.StockInfomation.Total + roundNegativeToZero(si.Soh)
+			p.StockInformation.Petrie = si.Soh
+			p.StockInformation.Total = p.StockInformation.Total + roundNegativeToZero(si.Soh)
 		case "bunda":
-			p.StockInfomation.Bunda = si.Soh
-			p.StockInfomation.Total = p.StockInfomation.Total + roundNegativeToZero(si.Soh)
+			p.StockInformation.Bunda = si.Soh
+			p.StockInformation.Total = p.StockInformation.Total + roundNegativeToZero(si.Soh)
 		case "con":
-			p.StockInfomation.Con = si.Soh
-			p.StockInfomation.Total = p.StockInfomation.Total + roundNegativeToZero(si.Soh)
+			p.StockInformation.Con = si.Soh
+			p.StockInformation.Total = p.StockInformation.Total + roundNegativeToZero(si.Soh)
 		case "franklin":
-			p.StockInfomation.Franklin = si.Soh
-			p.StockInfomation.Total = p.StockInfomation.Total + roundNegativeToZero(si.Soh)
+			p.StockInformation.Franklin = si.Soh
+			p.StockInformation.Total = p.StockInformation.Total + roundNegativeToZero(si.Soh)
 		case "web":
-			p.StockInfomation.Web = si.Soh
+			p.StockInformation.Web = si.Soh
 		}
 	}
 }
@@ -102,23 +102,23 @@ func (p *Product) ToEntity() *entities.Product {
 		StockInformations: []entities.StockInformation{
 			{
 				Location: "petrie",
-				Soh:      p.StockInfomation.Petrie,
+				Soh:      p.StockInformation.Petrie,
 			},
 			{
 				Location: "bunda",
-				Soh:      p.StockInfomation.Bunda,
+				Soh:      p.StockInformation.Bunda,
 			},
 			{
 				Location: "con",
-				Soh:      p.StockInfomation.Con,
+				Soh:      p.StockInformation.Con,
 			},
 			{
 				Location: "franklin",
-				Soh:      p.StockInfomation.Franklin,
+				Soh:      p.StockInformation.Franklin,
 			},
 			{
 				Location: "web",
-				Soh:      p.StockInfomation.Web,
+				Soh:      p.StockInformation.Web,
 			},
 		},
 	}
@@ -130,12 +130,12 @@ func (p *Product) ToTableRow() []string {
 		p.ProdName,
 		strconv.FormatFloat(p.Price, 'f', 2, 64),
 		strconv.FormatFloat(p.CostPrice, 'f', 2, 64),
-		strconv.Itoa(p.StockInfomation.Petrie),
-		strconv.Itoa(p.StockInfomation.Bunda),
-		strconv.Itoa(p.StockInfomation.Con),
-		strconv.Itoa(p.StockInfomation.Franklin),
-		strconv.Itoa(p.StockInfomation.Web),
-		strconv.Itoa(p.StockInfomation.Total),
+		strconv.Itoa(p.StockInformation.Petrie),
+		strconv.Itoa(p.StockInformation.Bunda),
+		strconv.Itoa(p.StockInformation.Con),
+		strconv.Itoa(p.StockInformation.Franklin),
+		strconv.Itoa(p.StockInformation.Web),
+		strconv.Itoa(p.StockInformation.Total),
 		p.BCID,
 	}
 }
@@ -147,12 +147,12 @@ func (p *Product) ToPresenterRow() Row {
 			p.ProdName,
 			strconv.FormatFloat(p.Price, 'f', 2, 64),
 			strconv.FormatFloat(p.CostPrice, 'f', 2, 64),
-			strconv.Itoa(p.StockInfomation.Petrie),
-			strconv.Itoa(p.StockInfomation.Bunda),
-			strconv.Itoa(p.StockInfomation.Con),
-			strconv.Itoa(p.StockInfomation.Franklin),
-			strconv.Itoa(p.StockInfomation.Web),
-			strconv.Itoa(p.StockInfomation.Total),
+			strconv.Itoa(p.StockInformation.Petrie),
+			strconv.Itoa(p.StockInformation.Bunda),
+			strconv.Itoa(p.StockInformation.Con),
+			strconv.Itoa(p.StockInformation.Franklin),
+			strconv.Itoa(p.StockInformation.Web),
+			strconv.Itoa(p.StockInformation.Total),
 			p.BCID,
 		},
 	}
@@ -167,13 +167,13 @@ func ProductSuccessResponse(data *Product) *fiber.Map {
 		OnWeb:     data.OnWeb,
 		IsVariant: data.IsVariant,
 		BCID:      data.BCID,
-		StockInfomation: StockInformation{
-			Petrie:   data.StockInfomation.Petrie,
-			Bunda:    data.StockInfomation.Bunda,
-			Con:      data.StockInfomation.Con,
-			Franklin: data.StockInfomation.Franklin,
-			Web:      data.StockInfomation.Web,
-			Total:    data.StockInfomation.Total,
+		StockInformation: StockInformation{
+			Petrie:   data.StockInformation.Petrie,
+			Bunda:    data.StockInformation.Bunda,
+			Con:      data.StockInformation.Con,
+			Franklin: data.StockInformation.Franklin,
+			Web:      data.StockInformation.Web,
+			Total:    data.StockInformation.Total,
 		},
 	}
 
@@ -195,13 +195,13 @@ func ProductsSuccessResponse(data []*Product) *fiber.Map {
 			OnWeb:     p.OnWeb,
 			IsVariant: p.IsVariant,
 			BCID:      p.BCID,
-			StockInfomation: StockInformation{
-				Petrie:   p.StockInfomation.Petrie,
-				Bunda:    p.StockInfomation.Bunda,
-				Con:      p.StockInfomation.Con,
-				Franklin: p.StockInfomation.Franklin,
-				Web:      p.StockInfomation.Web,
-				Total:    p.StockInfomation.Total,
+			StockInformation: StockInformation{
+				Petrie:   p.StockInformation.Petrie,
+				Bunda:    p.StockInformation.Bunda,
+				Con:      p.StockInformation.Con,
+				Franklin: p.StockInformation.Franklin,
+				Web:      p.StockInformation.Web,
+				Total:    p.StockInformation.Total,
 			},
 		})
 	}

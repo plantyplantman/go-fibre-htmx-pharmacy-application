@@ -95,29 +95,53 @@ func (ps Products) Export(path string) error {
 
 func defaultProductUpdateOpts(og *Product) ProductUpdateOpts {
 	return ProductUpdateOpts{
-		ID:              og.ID,
-		Name:            og.Name,
-		Type:            og.Type,
-		Sku:             og.Sku,
-		Description:     og.Description,
-		Weight:          og.Weight,
-		Width:           og.Width,
-		Depth:           og.Depth,
-		Height:          og.Height,
-		Price:           og.Price,
-		CostPrice:       og.CostPrice,
-		RetailPrice:     0,
-		SalePrice:       og.SalePrice,
-		InventoryLevel:  og.InventoryLevel,
-		PageTitle:       og.PageTitle,
-		MetaKeywords:    og.MetaKeywords,
-		MetaDescription: og.MetaDescription,
-		IsVisible:       og.IsVisible,
-		Categories:      og.Categories,
+		ID:               og.ID,
+		Name:             og.Name,
+		Type:             og.Type,
+		Sku:              og.Sku,
+		Description:      og.Description,
+		Weight:           og.Weight,
+		Width:            og.Width,
+		Depth:            og.Depth,
+		Height:           og.Height,
+		Price:            og.Price,
+		CostPrice:        og.CostPrice,
+		RetailPrice:      0,
+		SalePrice:        og.SalePrice,
+		InventoryLevel:   og.InventoryLevel,
+		PageTitle:        og.PageTitle,
+		MetaKeywords:     og.MetaKeywords,
+		MetaDescription:  og.MetaDescription,
+		IsVisible:        og.IsVisible,
+		Categories:       og.Categories,
+		BinPickingNumber: og.BinPickingNumber,
+		Upc:              og.Upc,
+		Gtin:             og.Gtin,
 	}
 }
 
 type ProductUpdateOptFn func(opt *ProductUpdateOpts) map[string]any
+
+func WithUpdateProductBinPickingNumber(binPickingNumber string) ProductUpdateOptFn {
+	return func(opt *ProductUpdateOpts) map[string]any {
+		opt.BinPickingNumber = binPickingNumber
+		return map[string]any{"binPickingNumber": binPickingNumber}
+	}
+}
+
+func WithUpdateProductGtin(gtin string) ProductUpdateOptFn {
+	return func(opt *ProductUpdateOpts) map[string]any {
+		opt.Gtin = gtin
+		return map[string]any{"gtin": gtin}
+	}
+}
+
+func WithUpdateProductUpc(upc string) ProductUpdateOptFn {
+	return func(opt *ProductUpdateOpts) map[string]any {
+		opt.Upc = upc
+		return map[string]any{"upc": upc}
+	}
+}
 
 func WithUpdateProductSku(sku string) ProductUpdateOptFn {
 	return func(opt *ProductUpdateOpts) map[string]any {
@@ -163,20 +187,20 @@ func WithUpdateProductCategoriesWithoutSaleIDs(ids []int) ProductUpdateOptFn {
 }
 func WithUpdateProductCategories(catIDs []int) ProductUpdateOptFn {
 	return func(opt *ProductUpdateOpts) map[string]any {
-		opt.Categories = catIDs
-		return map[string]any{"categories": catIDs}
+		opt.Categories = unique(catIDs)
+		return map[string]any{"categories": unique(catIDs)}
 	}
 }
 func WithUpdateProductCategoryIsRetired(b bool) ProductUpdateOptFn {
 	return func(opt *ProductUpdateOpts) map[string]any {
 		if b {
-			cats := map[string]any{"categories": append(opt.Categories, RETIRED_PRODUCTS)}
+			cats := map[string]any{"categories": RemoveSaleCategories(unique((append(opt.Categories, RETIRED_PRODUCTS))))}
 			opt.Categories = cats["categories"].([]int)
 			return cats
 		} else {
-			cats := map[string]any{"categories": lo.Filter(opt.Categories, func(i int, _ int) bool {
+			cats := map[string]any{"categories": unique(lo.Filter(opt.Categories, func(i int, _ int) bool {
 				return i != RETIRED_PRODUCTS
-			})}
+			}))}
 			opt.Categories = cats["categories"].([]int)
 			return cats
 		}
@@ -224,7 +248,7 @@ func NewUpdateProductReq(og *Product, optFuncs ...ProductUpdateOptFn) *ProductUp
 
 // == PRODUCTS ==
 
-func (c *BigCommerceClient) GetProductById(id int) (*Product, error) {
+func (c *Client) GetProductById(id int) (*Product, error) {
 	p, err := c.GetProducts(map[string]string{"id": fmt.Sprint(id), "include": "images,variants"})
 	if err != nil {
 		return nil, err
@@ -234,7 +258,38 @@ func (c *BigCommerceClient) GetProductById(id int) (*Product, error) {
 	}
 	return &p[0], nil
 }
-func (c *BigCommerceClient) GetProductFromSku(sku string) (Product, error) {
+
+func (c *Client) GetProductsById(ids []int) ([]*Product, []error) {
+	totalTasks := len(ids)
+	semaphore := make(chan struct{}, c.MaxWorkers)
+	errCh := make(chan error, totalTasks)
+	prodCh := make(chan *Product, totalTasks)
+
+	for i := 0; i < totalTasks; i++ {
+		semaphore <- struct{}{}
+		go func(i int) {
+			defer func() { <-semaphore }()
+			p, err := c.GetProductById(ids[i])
+			if err != nil {
+				errCh <- err
+			} else {
+				prodCh <- p
+			}
+		}(i)
+	}
+	// Wait for all goroutines to finish
+	for i := 0; i < c.MaxWorkers; i++ {
+		semaphore <- struct{}{}
+	}
+
+	close(semaphore)
+	close(errCh)
+	close(prodCh)
+
+	return lo.ChannelToSlice(prodCh), lo.ChannelToSlice(errCh)
+}
+
+func (c *Client) GetProductFromSku(sku string) (Product, error) {
 	p, e := c.GetProducts(map[string]string{"sku": sku, "include": "images,variants"})
 	if e != nil {
 		return Product{}, e
@@ -252,7 +307,7 @@ func (c *BigCommerceClient) GetProductFromSku(sku string) (Product, error) {
 	return p[0], nil
 }
 
-func (c *BigCommerceClient) GetProducts(params map[string]string) ([]Product, error) {
+func (c *Client) GetProducts(params map[string]string) ([]Product, error) {
 	url := GetUrl(c.BaseURL, "/catalog/products", params)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -277,7 +332,7 @@ func (c *BigCommerceClient) GetProducts(params map[string]string) ([]Product, er
 	return resp.Data, nil
 }
 
-func (c *BigCommerceClient) GetAllProducts(params map[string]string) ([]Product, error) {
+func (c *Client) GetAllProducts(params map[string]string) ([]Product, error) {
 	var retv []Product
 	page := 1
 	limit := 100
@@ -304,7 +359,7 @@ func (c *BigCommerceClient) GetAllProducts(params map[string]string) ([]Product,
 	return retv, nil
 }
 
-func (c *BigCommerceClient) CreateProduct(productReq NewProduct) (*Product, error) {
+func (c *Client) CreateProduct(productReq NewProduct) (*Product, error) {
 	data, err := json.Marshal(productReq)
 	if err != nil {
 		return nil, err
@@ -333,7 +388,7 @@ func (c *BigCommerceClient) CreateProduct(productReq NewProduct) (*Product, erro
 	return &resp.Data, nil
 }
 
-func (c *BigCommerceClient) GetProductIDFromSku(sku string) (int, error) {
+func (c *Client) GetProductIDFromSku(sku string) (int, error) {
 	p, e := c.GetProducts(map[string]string{"sku": sku, "include_fields": "sku"})
 	if e != nil {
 		return 0, e
@@ -344,7 +399,7 @@ func (c *BigCommerceClient) GetProductIDFromSku(sku string) (int, error) {
 	return p[0].ID, nil
 }
 
-func (c *BigCommerceClient) UpdateProduct(og *Product, optFuncs ...ProductUpdateOptFn) (Product, error) {
+func (c *Client) UpdateProduct(og *Product, optFuncs ...ProductUpdateOptFn) (Product, error) {
 	o := defaultProductUpdateOpts(og)
 	updateFields := map[string]any{}
 

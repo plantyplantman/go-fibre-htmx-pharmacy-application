@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"strconv"
@@ -19,7 +18,7 @@ import (
 )
 
 func main() {
-	b, err := os.ReadFile("C:/Users/admin/source/repos/minfos-test/minfos-test/bin/Debug/231031__petrie__promos.xml")
+	b, err := os.ReadFile("C:\\Users\\admin\\Desktop\\deleted_promos.xml")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -33,20 +32,8 @@ func main() {
 
 	var skus = make([]string, 0)
 	for _, o := range r.Campaign.Offers.Offer {
-		fmt.Println(o.OfferName)
-		if o.OfferName == "Aug Sept 10%" ||
-			o.OfferName == "Catalouge Set SAles" ||
-			o.OfferName == "Aug Sept Oct Vitamin Promo" ||
-			o.OfferName == "August Sept Oct Perm Promo" ||
-			o.OfferName == "40% off skincare" ||
-			o.OfferName == "Deleted Promo July 60% off" ||
-			o.OfferName == "Deleted Promo July 50% off" ||
-			o.OfferName == "Deleted Promo July 40% off" ||
-			o.OfferName == "Deleted July Promo 30% off" ||
-			o.OfferName == "Deleted Promo July 20% off" {
-			for _, p := range o.Products.Product {
-				skus = append(skus, p.EAN)
-			}
+		for _, p := range o.Products.Product {
+			skus = append(skus, p.EAN)
 		}
 	}
 

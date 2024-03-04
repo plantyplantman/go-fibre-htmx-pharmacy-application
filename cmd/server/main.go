@@ -11,23 +11,28 @@ import (
 	"github.com/plantyplantman/bcapi/api/routes"
 	"github.com/plantyplantman/bcapi/pkg/env"
 	"github.com/plantyplantman/bcapi/pkg/product"
+	"github.com/plantyplantman/bcapi/pkg/sales"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
 
 func main() {
 	var (
-		db      *gorm.DB
-		repo    product.Repository
-		service product.Service
-		err     error
+		db             *gorm.DB
+		repo           product.Repository
+		productService product.Service
+		err            error
 	)
 	if db, err = initDB(); err != nil {
 		log.Fatal(err)
 	}
 
 	repo = product.NewRepository(db)
-	service = product.NewService(repo)
+	productService = product.NewService(repo)
+	salesService, err := sales.NewService(4302, "https://localhost:44350")
+	if err != nil {
+		log.Fatalln(err)
+	}
 
 	engine := html.New(`.\public\views\`, ".tpl.html")
 	engine.AddFunc("add1", func(a int) int {
@@ -42,10 +47,11 @@ func main() {
 	f.Use(cache.New())
 
 	f.Static("/", "./public")
-	routes.AppRouter(f, service)
+	routes.AppRouter(f, productService)
 
 	api := f.Group("/api")
-	routes.ProductRouter(api, service)
+	routes.ProductRouter(api, productService)
+	routes.SalesRouter(api, salesService)
 
 	log.Fatal(f.Listen(":8080"))
 }

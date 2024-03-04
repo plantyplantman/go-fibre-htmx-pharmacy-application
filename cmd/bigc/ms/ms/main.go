@@ -2,8 +2,10 @@ package main
 
 import (
 	"encoding/csv"
+	"fmt"
 	"log"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gocarina/gocsv"
@@ -17,14 +19,43 @@ import (
 )
 
 func main() {
-	fp := `C:\Users\admin\Develin Management Dropbox\Zihan\files\in\231105\231105 MS Web.TXT`
-	date, err := time.Parse("060102", "231105")
+	var dates = []string{"240302"}
+	// var out = report.NotOnSiteReport{}
+	for _, d := range dates {
+		nosr, err := action(d)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		op := fmt.Sprintf(`C:\Users\admin\Develin Management Dropbox\Zihan\files\out\%s\%s__MS-Web__not-on-site.csv`, d, d)
+		if err = export(op, nosr); err != nil {
+			log.Println(err)
+		}
+	}
+}
+
+func export(path string, nosr report.NotOnSiteReport) error {
+	if err := os.MkdirAll(filepath.Dir(path), 0770); err != nil {
+		return err
+	}
+	f, err := os.Create(path)
 	if err != nil {
 		log.Fatalln(err)
 	}
+	defer f.Close()
+
+	return gocsv.Marshal(nosr, f)
+}
+
+func action(datestr string) (report.NotOnSiteReport, error) {
+	date, err := time.Parse("060102", datestr)
+	if err != nil {
+		return nil, err
+	}
+	fp := fmt.Sprintf(`C:\Users\admin\Develin Management Dropbox\Zihan\files\in\%s\%s MS Web.TXT`, datestr, datestr)
 	f, err := os.Open(fp)
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 	defer f.Close()
 
@@ -34,7 +65,7 @@ func main() {
 
 	prls, err := parser.ParseMultistoreInput(r, date, "ms")
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	var connString = env.TEST_NEON
@@ -43,7 +74,7 @@ func main() {
 	}
 	DB, err := gorm.Open(postgres.Open(connString), &gorm.Config{})
 	if err != nil {
-		log.Fatalln(err)
+		return nil, err
 	}
 
 	repo := product.NewRepository(DB)
@@ -51,13 +82,6 @@ func main() {
 	c := bigc.MustGetClient()
 
 	var nosr = report.DoMultistore(prls, service, c)
-	of, err := os.OpenFile("231105__ms__not-on-site.csv", os.O_RDWR|os.O_CREATE, os.ModePerm)
-	if err != nil {
-		log.Fatalln(err)
-	}
 
-	err = gocsv.MarshalFile(&nosr, of)
-	if err != nil {
-		log.Fatalln(err)
-	}
+	return nosr, nil
 }

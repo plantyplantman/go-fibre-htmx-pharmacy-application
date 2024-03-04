@@ -3,13 +3,56 @@ package main
 import (
 	"fmt"
 	"log"
+	"strconv"
 	"strings"
 
 	"github.com/plantyplantman/bcapi/pkg/bigc"
+	"github.com/plantyplantman/bcapi/pkg/product"
 	"github.com/samber/lo"
+	"gorm.io/gorm"
 )
 
 func main() {
+	service, err := product.NewDefaultService()
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	ps, err := service.FetchProducts(func(d *gorm.DB) *gorm.DB {
+		return d.Where("name LIKE ?", "ARCHLINE%")
+	}, product.WithStockInformation())
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	bc := bigc.MustGetClient()
+	for _, p := range ps {
+		if p.BCID == "" {
+			log.Println("No BCID for ", p.Sku, " ", p.ProdName)
+			continue
+		}
+
+		id, err := strconv.Atoi(p.BCID)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		bcp, err := bc.GetProductById(id)
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+
+		_, err = bc.UpdateProduct(bcp, bigc.WithUpdateProductInventoryLevel(p.StockInformation.Total))
+		if err != nil {
+			log.Println(err)
+			continue
+		}
+	}
+}
+
+func run() {
 	c := bigc.MustGetClient()
 
 	ps, err := c.GetAllProducts(map[string]string{"keyword": "moogoo", "categories:in": fmt.Sprint(bigc.RETIRED_PRODUCTS)})

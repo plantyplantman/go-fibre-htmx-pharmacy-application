@@ -1,7 +1,6 @@
 package report
 
 import (
-	"fmt"
 	"log"
 	"strings"
 	"time"
@@ -25,20 +24,22 @@ type NotOnSiteReportLine struct {
 	Height   float64  `csv:"Height"`
 	Depth    float64  `csv:"Depth"`
 	Date     DateTime `csv:"Date"`
+	presenter.StockInformation
 }
 
-func (r NotOnSiteReport) Action(s product.Service, c *bigc.BigCommerceClient, ai_c *bigc.AI_Client) {
+func (r NotOnSiteReport) Action(s product.Service, c *bigc.Client, ai_c *bigc.AI_Client) ([]any, error) {
+	retv := make([]any, 0)
 	for _, l := range r {
 		if strings.ToLower(strings.TrimSpace(l.Action)) == "add" {
 			p := presenter.Product{Sku: l.Sku}
 			if err := s.FetchProduct(&p); err != nil {
-				log.Println(err)
+				return nil, err
 			}
 			var (
 				soh       int
 				costPrice float64
 			)
-			soh = p.StockInfomation.Total
+			soh = p.StockInformation.Total
 			costPrice = p.CostPrice
 			if l.Soh != 0 {
 				soh = l.Soh
@@ -60,14 +61,16 @@ func (r NotOnSiteReport) Action(s product.Service, c *bigc.BigCommerceClient, ai
 				log.Println(err)
 				continue
 			}
-			_, err = c.CreateProduct(req)
+			newp, err := c.CreateProduct(req)
 			if err != nil {
 				log.Println(err)
 				continue
 			}
-			fmt.Println("created", l.Sku)
+			retv = append(retv, newp)
 		}
 	}
+
+	return retv, nil
 }
 
 type DateTime struct {

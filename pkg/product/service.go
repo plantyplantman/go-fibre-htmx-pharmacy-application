@@ -1,6 +1,7 @@
 package product
 
 import (
+	"errors"
 	"log"
 	"strconv"
 	"strings"
@@ -8,6 +9,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/plantyplantman/bcapi/api/presenter"
 	"github.com/plantyplantman/bcapi/pkg/entities"
+	"github.com/plantyplantman/bcapi/pkg/env"
+	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/clause"
 )
@@ -29,6 +32,21 @@ func NewService(r Repository) Service {
 	return &service{
 		repository: r,
 	}
+}
+
+func NewDefaultService() (Service, error) {
+	var connString = env.TEST_NEON
+	if connString == "" {
+		return nil, errors.New("TEST_NEON_CONNECTION_STRING not set")
+	}
+	DB, err := gorm.Open(postgres.Open(connString), &gorm.Config{})
+	if err != nil {
+		return nil, err
+	}
+	r := NewRepository(DB)
+	return &service{
+		repository: r,
+	}, nil
 }
 
 func (s *service) InsertProduct(product *entities.Product) (*entities.Product, error) {

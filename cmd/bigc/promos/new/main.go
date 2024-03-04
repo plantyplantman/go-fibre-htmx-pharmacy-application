@@ -19,8 +19,7 @@ import (
 )
 
 func main() {
-
-	path := `C:\Users\admin\Downloads\NOVEMBERDELETED.xml`
+	path := `C:\Users\admin\Downloads\womenshealth2promo.xml`
 	b, err := os.ReadFile(path)
 	if err != nil {
 		log.Fatal(err)
@@ -35,15 +34,12 @@ func main() {
 
 	var skus = make([]string, 0)
 	for _, o := range r.Campaign.Offers.Offer {
-		if o.OfferName == "Buy 2 get 20% off November December" {
-			continue
-		}
-
-		fmt.Println(o.OfferName)
 		for _, p := range o.Products.Product {
 			skus = append(skus, p.EAN)
+			fmt.Println(p.EAN)
 		}
 	}
+
 	var connString = env.TEST_NEON
 	if connString == "" {
 		log.Fatalln("TEST_NEON_CONNECTION_STRING not set")
@@ -66,9 +62,6 @@ func main() {
 	c := bigc.MustGetClient()
 
 	for _, o := range r.Campaign.Offers.Offer {
-		if o.OfferName == "Buy 2 get 20% off November December" {
-			continue
-		}
 		discAmount := 0.0
 		switch strings.TrimSpace(o.PercentOffDisc) {
 		case "0.10":
@@ -87,6 +80,16 @@ func main() {
 
 		for _, p := range o.Products.Product {
 			if ep, ok := psSkuM[p.EAN]; ok {
+				sku := strings.TrimSpace(ep.Sku)
+				if strings.HasPrefix(ep.ProdName, "\\") || strings.HasPrefix(ep.ProdName, "#") || strings.HasPrefix(ep.ProdName, "#") {
+					if !strings.HasPrefix(sku, "//") {
+						if !strings.HasPrefix(sku, "/") {
+							sku = "/" + sku
+						}
+						sku = "/" + sku
+					}
+				}
+
 				if ep.IsVariant {
 					ids := strings.Split(ep.BCID, "/")
 					if len(ids) != 2 {
@@ -109,14 +112,18 @@ func main() {
 						log.Println(err)
 						continue
 					}
-					sku := strings.TrimSpace(v.Sku)
-					if !strings.HasPrefix(sku, "/") {
-						sku = "/" + sku
-					}
-					_, err = c.UpdateVariant(v, bigc.WithUpdateVariantSalePrice(v.Price-(v.Price*discAmount)), bigc.WithUpdateVariantSku(sku))
-					if err != nil {
-						log.Println(err)
-						continue
+					if discAmount == 0.0 && p.OfferPrice != 0.0 {
+						_, err = c.UpdateVariant(v, bigc.WithUpdateVariantSalePrice(p.OfferPrice), bigc.WithUpdateVariantSku(sku))
+						if err != nil {
+							log.Println(err)
+							continue
+						}
+					} else {
+						_, err = c.UpdateVariant(v, bigc.WithUpdateVariantSalePrice(v.Price-(v.Price*discAmount)), bigc.WithUpdateVariantSku(sku))
+						if err != nil {
+							log.Println(err)
+							continue
+						}
 					}
 				} else {
 					id, err := strconv.Atoi(ep.BCID)
@@ -137,7 +144,6 @@ func main() {
 						cats = append(cats, bigc.SALE_20, bigc.PRODUCTSALE_20)
 					} else {
 						cats = append(cats, bigc.PROMO_SET_SALES)
-
 						if discAmount > 0.57 {
 							cats = append(cats, bigc.SALE_50, bigc.PRODUCTSALE_60)
 						} else if discAmount > 0.47 {
@@ -148,23 +154,52 @@ func main() {
 							cats = append(cats, bigc.SALE_30, bigc.PRODUCTSALE_30)
 						} else if discAmount > 0.17 {
 							cats = append(cats, bigc.SALE_20, bigc.PRODUCTSALE_20)
-						} else if discAmount > 0.7 {
+						} else if discAmount > 0.13 {
+							cats = append(cats, bigc.SALE_15, bigc.PRODUCTSALE_15)
+						} else if discAmount > 0.07 {
 							cats = append(cats, bigc.SALE_10, bigc.PRODUCTSALE_10)
 						}
 					}
 
-					sku := strings.TrimSpace(bcp.Sku)
-					if !strings.HasPrefix(sku, "/") {
-						sku = "/" + sku
+					if discAmount == 0.0 && p.OfferPrice != 0.0 {
+						discpercent := (bcp.Price - p.OfferPrice) / bcp.Price
+						if discpercent > 0.57 {
+							cats = append(cats, bigc.SALE_50, bigc.PRODUCTSALE_60)
+						} else if discpercent > 0.47 {
+							cats = append(cats, bigc.SALE_50, bigc.PRODUCTSALE_50)
+						} else if discpercent > 0.37 {
+							cats = append(cats, bigc.SALE_40, bigc.PRODUCTSALE_40)
+						} else if discpercent > 0.27 {
+							cats = append(cats, bigc.SALE_30, bigc.PRODUCTSALE_30)
+						} else if discpercent > 0.17 {
+							cats = append(cats, bigc.SALE_20, bigc.PRODUCTSALE_20)
+						} else if discpercent > 0.13 {
+							cats = append(cats, bigc.SALE_15, bigc.PRODUCTSALE_15)
+						} else if discpercent > 0.07 {
+							cats = append(cats, bigc.SALE_10, bigc.PRODUCTSALE_10)
+						}
 					}
-					_, err = c.UpdateProduct(bcp,
-						bigc.WithUpdateProductSalePrice(bcp.Price-(bcp.Price*discAmount)),
-						bigc.WithUpdateProductCategories(cats),
-						bigc.WithUpdateProductSku(sku),
-					)
-					if err != nil {
-						log.Println(err)
-						continue
+
+					if discAmount == 0.0 && p.OfferPrice != 0.0 {
+						_, err = c.UpdateProduct(bcp,
+							bigc.WithUpdateProductSalePrice(p.OfferPrice),
+							bigc.WithUpdateProductCategories(cats),
+							bigc.WithUpdateProductSku(sku),
+						)
+						if err != nil {
+							log.Println(err)
+							continue
+						}
+					} else {
+						_, err = c.UpdateProduct(bcp,
+							bigc.WithUpdateProductSalePrice(bcp.Price-(bcp.Price*discAmount)),
+							bigc.WithUpdateProductCategories(cats),
+							bigc.WithUpdateProductSku(sku),
+						)
+						if err != nil {
+							log.Println(err)
+							continue
+						}
 					}
 				}
 			}

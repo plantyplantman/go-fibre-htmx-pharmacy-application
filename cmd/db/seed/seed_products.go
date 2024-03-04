@@ -13,10 +13,13 @@ import (
 
 	"github.com/gocarina/gocsv"
 	"github.com/plantyplantman/bcapi/api/presenter"
+	"github.com/plantyplantman/bcapi/pkg/db"
 	"github.com/plantyplantman/bcapi/pkg/entities"
 	"github.com/plantyplantman/bcapi/pkg/env"
 	"github.com/plantyplantman/bcapi/pkg/parser"
 	"github.com/plantyplantman/bcapi/pkg/report"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 )
 
 func main() {
@@ -37,18 +40,18 @@ func main() {
 
 	var products = NewProducts(psls, prl, pf)
 
-	// DB, err := gorm.Open(postgres.Open(connString), &gorm.Config{})
-	// if err != nil {
-	// 	log.Fatalln(err)
-	// }
-	// if err = db.Migrate(DB); err != nil {
-	// 	log.Fatalln(err)
-	// }
-	// if err = db.Seed(DB, products); err != nil {
-	// 	log.Fatalln(err)
-	// }
+	DB, err := gorm.Open(postgres.Open(connString), &gorm.Config{})
+	if err != nil {
+		log.Fatalln(err)
+	}
+	if err = db.Migrate(DB); err != nil {
+		log.Fatalln(err)
+	}
+	if err = db.Seed(DB, products); err != nil {
+		log.Fatalln(err)
+	}
 
-	err := export(products, outFilePath)
+	err = export(products, outFilePath)
 	if err != nil {
 		log.Fatalln(err)
 	}

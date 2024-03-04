@@ -3,7 +3,6 @@ package parser
 import (
 	"encoding/csv"
 	"io"
-	"os"
 	"time"
 
 	"github.com/gocarina/gocsv"
@@ -25,7 +24,7 @@ type Parser interface {
 	Parse(interface{}) error
 }
 
-func NewCsvParser(file *os.File, opts ...ParserOption) (Parser, error) {
+func NewCsvParser(file io.Reader, opts ...ParserOption) (Parser, error) {
 	if file == nil {
 		return nil, &InvalidFileError{msg: "file is nil"}
 	}
@@ -45,7 +44,7 @@ func NewCsvParser(file *os.File, opts ...ParserOption) (Parser, error) {
 }
 
 type csvParser struct {
-	file *os.File
+	file io.Reader
 	opts parserOpts
 }
 
@@ -84,9 +83,13 @@ func (p *csvParser) Parse(dst interface{}) error {
 		return r
 	})
 
-	if err := gocsv.UnmarshalFile(p.file, dst); err != nil {
+	if err := gocsv.Unmarshal(p.file, dst); err != nil {
 		return err
 	}
+
+	// if err := gocsv.UnmarshalFile(p.file, dst); err != nil {
+	// 	return err
+	// }
 
 	return nil
 }

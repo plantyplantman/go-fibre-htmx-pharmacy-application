@@ -19,7 +19,9 @@ func main() {
 	for _, p := range ps {
 		if p.Sku == "" {
 			for _, v := range p.Variants {
-				fmt.Println(delimit('\t', v.Sku, fmt.Sprintf("%s - %s", p.Name, v.OptionValues[0].OptionDisplayName), v.Weight, v.Height, v.Width, v.Depth))
+				if v.Weight == 0 || v.Height == 0 || v.Width == 0 || v.Depth == 0 {
+					fmt.Println(delimit('\t', v.Sku, fmt.Sprintf("%s - %s", p.Name, v.OptionValues[0].OptionDisplayName), v.Weight, v.Height, v.Width, v.Depth))
+				}
 			}
 		} else {
 			if p.Weight == 0 || p.Height == 0 || p.Width == 0 || p.Depth == 0 {

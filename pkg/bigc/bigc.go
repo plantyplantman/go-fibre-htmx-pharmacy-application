@@ -13,11 +13,12 @@ import (
 	"golang.org/x/exp/maps"
 )
 
-type BigCommerceClient struct {
+type Client struct {
 	BaseURL     string
 	AccessToken string
 	httpClient  *http.Client
 	logger      *logrus.Logger
+	MaxWorkers  int
 }
 
 func initLogger() *logrus.Logger {
@@ -26,28 +27,29 @@ func initLogger() *logrus.Logger {
 	return log
 }
 
-func NewClient(baseURL, accessToken string, logger *logrus.Logger) *BigCommerceClient {
+func NewClient(baseURL, accessToken string, logger *logrus.Logger) *Client {
 	if logger == nil {
 		logger = initLogger()
 	}
 
-	return &BigCommerceClient{
+	return &Client{
 		BaseURL:     baseURL,
 		AccessToken: accessToken,
 		httpClient:  &http.Client{},
 		logger:      logger,
+		MaxWorkers:  50,
 	}
 }
 
-func MustGetClient() *BigCommerceClient {
+func MustGetClient() *Client {
 	return NewClient("https://api.bigcommerce.com/stores/9wn8an8lno/v3", env.BIGCOMMERCE, nil)
 }
 
-func GetClient() (*BigCommerceClient, error) {
+func GetClient() (*Client, error) {
 	return NewClient("https://api.bigcommerce.com/stores/9wn8an8lno/v3", env.BIGCOMMERCE, nil), nil
 }
 
-func (c *BigCommerceClient) doRequest(req *http.Request) ([]byte, error) {
+func (c *Client) doRequest(req *http.Request) ([]byte, error) {
 	req.Header.Add("X-Auth-Token", c.AccessToken)
 	req.Header.Add("Content-Type", "application/json")
 	req.Header.Add("Accept", "application/json")
@@ -70,7 +72,42 @@ func (c *BigCommerceClient) doRequest(req *http.Request) ([]byte, error) {
 	return body, nil
 }
 
-func (c *BigCommerceClient) GetVariants(productID int, params map[string]string) ([]Variant, error) {
+func (c *Client) DeleteProduct(productID int) error {
+	url := GetUrl(c.BaseURL, fmt.Sprintf("/catalog/products/%d", productID), map[string]string{})
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return err
+	}
+	_, err = c.doRequest(req)
+	return err
+}
+
+func (c *Client) DeleteProducts(productIDs []int) chan error {
+	totalTasks := len(productIDs)
+	semaphore := make(chan struct{}, c.MaxWorkers)
+	errCh := make(chan error, totalTasks)
+
+	for i := 0; i < totalTasks; i++ {
+		semaphore <- struct{}{}
+		go func(i int) {
+			defer func() { <-semaphore }()
+			if err := c.DeleteProduct(productIDs[i]); err != nil {
+				errCh <- err
+			}
+		}(i)
+	}
+	// Wait for all goroutines to finish
+	for i := 0; i < c.MaxWorkers; i++ {
+		semaphore <- struct{}{}
+	}
+
+	close(semaphore)
+	close(errCh)
+
+	return errCh
+}
+
+func (c *Client) GetVariants(productID int, params map[string]string) ([]Variant, error) {
 	url := GetUrl(c.BaseURL, fmt.Sprintf("/catalog/products/%d/variants", productID), params)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -94,7 +131,7 @@ func (c *BigCommerceClient) GetVariants(productID int, params map[string]string)
 	return resp.Data, nil
 }
 
-func (c *BigCommerceClient) GetVariantById(variantID int, productID int, params map[string]string) (*Variant, error) {
+func (c *Client) GetVariantById(variantID int, productID int, params map[string]string) (*Variant, error) {
 	url := GetUrl(c.BaseURL, fmt.Sprintf("/catalog/products/%d/variants/%d", productID, variantID), params)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -118,7 +155,7 @@ func (c *BigCommerceClient) GetVariantById(variantID int, productID int, params 
 	return &resp.Data, nil
 }
 
-func (c *BigCommerceClient) UpdateVariant(v *Variant, opts ...UpdateVariantOpt) (*Variant, error) {
+func (c *Client) UpdateVariant(v *Variant, opts ...UpdateVariantOpt) (*Variant, error) {
 
 	for _, f := range opts {
 		f(v)
@@ -158,7 +195,7 @@ func (c *BigCommerceClient) UpdateVariant(v *Variant, opts ...UpdateVariantOpt) 
 	return &resp.Data, nil
 }
 
-func (c *BigCommerceClient) CreateCustomField(productId int, cf *CustomField) (*CustomField, error) {
+func (c *Client) CreateCustomField(productId int, cf *CustomField) (*CustomField, error) {
 	data, err := json.Marshal(cf)
 	if err != nil {
 		return &CustomField{}, err
@@ -184,7 +221,7 @@ func (c *BigCommerceClient) CreateCustomField(productId int, cf *CustomField) (*
 	return &resp.Data, nil
 }
 
-func (c *BigCommerceClient) AddShippingField(productId int) error {
+func (c *Client) AddShippingField(productId int) error {
 	shippingField := CustomField{
 		Name:  "Shipping",
 		Value: "Ships in 1-7 business days",
@@ -201,12 +238,8 @@ func (c *BigCommerceClient) AddShippingField(productId int) error {
 	return nil
 }
 
-func (c BigCommerceClient) DeleteProducts(product_ids []string) error {
-	return &NotImplementedError{}
-}
-
 // == CATEGORIES ==
-func (c BigCommerceClient) GetCategories(params map[string]string) ([]Category, error) {
+func (c Client) GetCategories(params map[string]string) ([]Category, error) {
 	url := GetUrl(c.BaseURL, "/catalog/categories", params)
 	req, err := http.NewRequest("GET", url, nil)
 	if err != nil {
@@ -230,7 +263,7 @@ func (c BigCommerceClient) GetCategories(params map[string]string) ([]Category, 
 	return resp.Data, nil
 }
 
-func (c BigCommerceClient) CreateCategory(categoryReq Category) (*Category, error) {
+func (c Client) CreateCategory(categoryReq Category) (*Category, error) {
 	data, err := json.Marshal(categoryReq)
 	if err != nil {
 		return nil, err
@@ -276,7 +309,7 @@ func WithUpdateMetaKeywords(keywords []string) func(*Category) *Category {
 	}
 }
 
-func (c BigCommerceClient) UpdateCategory(cat *Category, opts ...func(*Category) *Category) (*Category, error) {
+func (c Client) UpdateCategory(cat *Category, opts ...func(*Category) *Category) (*Category, error) {
 	for _, o := range opts {
 		o(cat)
 	}
@@ -303,7 +336,7 @@ func (c BigCommerceClient) UpdateCategory(cat *Category, opts ...func(*Category)
 	return &resp.Data, nil
 }
 
-func (c BigCommerceClient) ExportCategories(path string, categories []Category) error {
+func (c Client) ExportCategories(path string, categories []Category) error {
 	if categories == nil {
 		return errors.New("can't export empty category list")
 	}
@@ -333,7 +366,7 @@ func (c BigCommerceClient) ExportCategories(path string, categories []Category) 
 	return WriteToTsv(path, headers, content)
 }
 
-func (c BigCommerceClient) GetCategoryFromID(id int) (Category, error) {
+func (c Client) GetCategoryFromID(id int) (Category, error) {
 	cs, e := c.GetCategories(map[string]string{"id": fmt.Sprint(id)})
 	if e != nil || len(cs) == 0 {
 		return Category{}, e
@@ -341,7 +374,7 @@ func (c BigCommerceClient) GetCategoryFromID(id int) (Category, error) {
 	return cs[0], nil
 }
 
-func (c BigCommerceClient) GetAllVisibleCategoriesWOutDescriptions() ([]Category, error) {
+func (c Client) GetAllVisibleCategoriesWOutDescriptions() ([]Category, error) {
 	var retv []Category
 
 	cats, e := c.GetAllCategories(map[string]string{"is_visible": "true"})
@@ -357,7 +390,7 @@ func (c BigCommerceClient) GetAllVisibleCategoriesWOutDescriptions() ([]Category
 	return retv, nil
 }
 
-func (c BigCommerceClient) GetAllCategories(params map[string]string) ([]Category, error) {
+func (c Client) GetAllCategories(params map[string]string) ([]Category, error) {
 	page := 1
 	limit := 100
 	var retv []Category

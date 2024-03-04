@@ -16,7 +16,6 @@ import (
 
 func AppRouter(f fiber.Router, service product.Service) {
 	f.Get("/", func(ctx *fiber.Ctx) error {
-		// Render index within layouts/main
 		return ctx.Render("partials/hero", fiber.Map{}, "layout")
 	})
 
@@ -111,7 +110,7 @@ func AppRouter(f fiber.Router, service product.Service) {
 						OnWeb:     0,
 						IsVariant: false,
 						BCID:      "",
-						StockInfomation: presenter.StockInformation{
+						StockInformation: presenter.StockInformation{
 							Petrie:   0,
 							Bunda:    0,
 							Con:      0,

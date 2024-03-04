@@ -12,6 +12,8 @@ const (
 	PRODUCTSALE               = 668
 	PRODUCTSALE_10            = 1005
 	SALE_10                   = 1030
+	PRODUCTSALE_15            = 1342
+	SALE_15                   = 1343
 	PRODUCTSALE_20            = 146
 	SALE_20                   = 143
 	PRODUCTSALE_30            = 732
@@ -42,6 +44,7 @@ const (
 	RETIRED_PRODUCTS          = 1230
 	NEW                       = 1041
 	CLEARANCE                 = 691
+	BLACKFRIDAY               = 1329
 )
 
 func getSaleCategoryIDs() []int {
@@ -50,6 +53,8 @@ func getSaleCategoryIDs() []int {
 		PRODUCTSALE,
 		PRODUCTSALE_10,
 		SALE_10,
+		PRODUCTSALE_15,
+		SALE_15,
 		PRODUCTSALE_20,
 		SALE_20,
 		PRODUCTSALE_30,
@@ -78,6 +83,7 @@ func getSaleCategoryIDs() []int {
 		PROMO_AUSMADE,
 		PROMO_SALE,
 		CLEARANCE,
+		BLACKFRIDAY,
 	}
 }
 
@@ -101,7 +107,7 @@ func unique(intSlice []int) []int {
 	return list
 }
 
-func (cat *Category) GetParent(c *BigCommerceClient) (Category, error) {
+func (cat *Category) GetParent(c *Client) (Category, error) {
 	parentId := cat.ParentID
 	if parentId == 0 {
 		return Category{}, nil
@@ -109,15 +115,15 @@ func (cat *Category) GetParent(c *BigCommerceClient) (Category, error) {
 	return c.GetCategoryFromID(parentId)
 }
 
-func (cat *Category) GetSiblings(c *BigCommerceClient) ([]Category, error) {
+func (cat *Category) GetSiblings(c *Client) ([]Category, error) {
 	return c.GetCategories(map[string]string{"parent_id": fmt.Sprint(cat.ParentID)})
 }
 
-func (cat *Category) GetChildren(c *BigCommerceClient) ([]Category, error) {
+func (cat *Category) GetChildren(c *Client) ([]Category, error) {
 	return c.GetCategories(map[string]string{"parent_id": fmt.Sprint(cat.ID)})
 }
 
-func (cat *Category) GetAllChildren(c *BigCommerceClient) ([]*Category, error) {
+func (cat *Category) GetAllChildren(c *Client) ([]*Category, error) {
 	children, err := cat.GetChildren(c)
 	if err != nil {
 		return nil, err
@@ -137,7 +143,7 @@ func (cat *Category) GetAllChildren(c *BigCommerceClient) ([]*Category, error) {
 	return allChildren, nil
 }
 
-func (cat *Category) GetAllChildren2(c *BigCommerceClient) ([]Category, error) {
+func (cat *Category) GetAllChildren2(c *Client) ([]Category, error) {
 	children, err := cat.GetChildren(c)
 	if err != nil {
 		return nil, err

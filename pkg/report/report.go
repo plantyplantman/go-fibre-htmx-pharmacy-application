@@ -35,24 +35,25 @@ func (psls ProductStockLists) Combine() *CombinedProductStockList {
 
 	for _, psl := range psls {
 		for _, line := range psl.Lines {
-			if _, exists := skuMap[line.Sku]; !exists {
-				skuMap[line.Sku] = &CombinedProductStockListLine{
-					Sku:      line.Sku,
+			sku := strings.TrimSpace(line.Sku)
+			if _, exists := skuMap[sku]; !exists {
+				skuMap[sku] = &CombinedProductStockListLine{
+					Sku:      sku,
 					ProdName: line.ProdName,
 					Price:    line.Price,
 				}
 			}
 			switch psl.Store {
 			case "petrie":
-				skuMap[line.Sku].Petrie = line.Qty
+				skuMap[sku].Petrie = line.Qty
 			case "franklin":
-				skuMap[line.Sku].Franklin = line.Qty
+				skuMap[sku].Franklin = line.Qty
 			case "bunda":
-				skuMap[line.Sku].Bunda = line.Qty
+				skuMap[sku].Bunda = line.Qty
 			case "con":
-				skuMap[line.Sku].Con = line.Qty
+				skuMap[sku].Con = line.Qty
 			}
-			skuMap[line.Sku].Total = skuMap[line.Sku].Total + roundNegativeToZero(line.Qty)
+			skuMap[sku].Total = skuMap[sku].Total + roundNegativeToZero(line.Qty)
 		}
 	}
 
@@ -113,9 +114,13 @@ type ProductFileLine struct {
 func (r *ProductFile) ToSkuMap() map[string]*ProductFileLine {
 	m := make(map[string]*ProductFileLine, len(r.Lines))
 	for _, line := range r.Lines {
-		m[line.Sku.string] = line
+		m[line.Sku.String()] = line
 	}
 	return m
+}
+
+func NewBigCommerceSku(s string) BigCommerceSku {
+	return BigCommerceSku{string: s}
 }
 
 type BigCommerceSku struct {
@@ -123,7 +128,11 @@ type BigCommerceSku struct {
 }
 
 func (s BigCommerceSku) String() string {
-	return s.string
+	sku, err := cleanBigCommerceSku(s.string)
+	if err != nil {
+		return s.string
+	}
+	return sku
 }
 
 func (s BigCommerceSku) MarshalCSV() (string, error) {

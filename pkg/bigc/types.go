@@ -134,6 +134,24 @@ type OptionValues struct {
 
 type UpdateVariantOpt func(*Variant)
 
+func WithUpdateVariantBinPickingNumber(s string) UpdateVariantOpt {
+	return func(v *Variant) {
+		v.BinPickingNumber = s
+	}
+}
+
+func WithUpdateVariantGtin(s string) UpdateVariantOpt {
+	return func(v *Variant) {
+		v.Gtin = s
+	}
+}
+
+func WithUpdateVariantUpc(s string) UpdateVariantOpt {
+	return func(v *Variant) {
+		v.Upc = s
+	}
+}
+
 func WithUpdateVariantPurchasingDisabled(b bool) UpdateVariantOpt {
 	return func(v *Variant) {
 		v.PurchasingDisabled = b
@@ -176,25 +194,28 @@ func WithUpdateVariantSku(sku string) UpdateVariantOpt {
 }
 
 type ProductUpdateOpts struct {
-	ID              int      `json:"id"`
-	Name            string   `json:"name"`
-	Type            string   `json:"type"`
-	Sku             string   `json:"sku"`
-	Description     string   `json:"description"`
-	Weight          float64  `json:"weight"`
-	Width           float64  `json:"width"`
-	Depth           float64  `json:"depth"`
-	Height          float64  `json:"height"`
-	Price           float64  `json:"price"`
-	CostPrice       float64  `json:"cost_price"`
-	RetailPrice     float64  `json:"retail_price"`
-	SalePrice       float64  `json:"sale_price"`
-	InventoryLevel  int      `json:"inventory_level"`
-	PageTitle       string   `json:"page_title"`
-	MetaKeywords    []string `json:"meta_keywords"`
-	MetaDescription string   `json:"meta_description"`
-	IsVisible       bool     `json:"is_visible"`
-	Categories      []int    `json:"categories"`
+	ID               int      `json:"id"`
+	Name             string   `json:"name"`
+	Type             string   `json:"type"`
+	Sku              string   `json:"sku"`
+	Description      string   `json:"description"`
+	Weight           float64  `json:"weight"`
+	Width            float64  `json:"width"`
+	Depth            float64  `json:"depth"`
+	Height           float64  `json:"height"`
+	Price            float64  `json:"price"`
+	CostPrice        float64  `json:"cost_price"`
+	RetailPrice      float64  `json:"retail_price"`
+	SalePrice        float64  `json:"sale_price"`
+	InventoryLevel   int      `json:"inventory_level"`
+	PageTitle        string   `json:"page_title"`
+	MetaKeywords     []string `json:"meta_keywords"`
+	MetaDescription  string   `json:"meta_description"`
+	IsVisible        bool     `json:"is_visible"`
+	Categories       []int    `json:"categories"`
+	Gtin             string   `json:"gtin"`
+	Upc              string   `json:"upc"`
+	BinPickingNumber string   `json:"bin_picking_number"`
 }
 
 type Product struct {

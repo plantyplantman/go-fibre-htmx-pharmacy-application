@@ -11,11 +11,7 @@ import (
 
 func main() {
 	date := time.Now().Format("060102")
-
-	// var ZihanFilesPath = `C:\Users\admin\Develin Management Dropbox\Zihan\files\`
-	// path := filepath.Join(ZihanFilesPath, date+`\`, date+`__web__pf.tsv`)
-
-	path := date + `__web__pf.tsv`
+	path := filepath.Join(`C:\Users\admin\Develin Management Dropbox\Zihan\files\in\`, date, date+`__web__pf.tsv`)
 	if err := os.MkdirAll(filepath.Dir(path), 0770); err != nil {
 		log.Fatalln(err)
 	}

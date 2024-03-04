@@ -53,7 +53,7 @@ func main() {
 	}
 
 	pps = lo.Filter(pps, func(pp *presenter.Product, _ int) bool {
-		return strings.HasPrefix(pp.ProdName, `\`)
+		return strings.HasPrefix(pp.ProdName, `\`) && pp.OnWeb == 1
 	})
 
 	for _, pp := range pps {
@@ -80,7 +80,7 @@ func main() {
 			if !strings.HasPrefix(sku, "/") {
 				sku = "/" + sku
 			}
-			if pp.StockInfomation.Total == 0 {
+			if pp.StockInformation.Total == 0 {
 				if !strings.HasPrefix(sku, "//") {
 					sku = "/" + sku
 				}
@@ -99,7 +99,7 @@ func main() {
 					sku = strings.TrimPrefix(sku, "/")
 				}
 				_, err := c.UpdateVariant(v,
-					bigc.WithUpdateVariantInventoryLevel(pp.StockInfomation.Total),
+					bigc.WithUpdateVariantInventoryLevel(pp.StockInformation.Total),
 					bigc.WithUpdateVariantPurchasingDisabled(false),
 					bigc.WithUpdateVariantSku(sku),
 				)
@@ -125,7 +125,7 @@ func main() {
 				sku = "/" + sku
 			}
 
-			if pp.StockInfomation.Total == 0 {
+			if pp.StockInformation.Total == 0 {
 				if !strings.HasPrefix(sku, "//") {
 					sku = "/" + sku
 				}
@@ -146,7 +146,7 @@ func main() {
 					sku = strings.TrimPrefix(sku, "/")
 				}
 				_, err := c.UpdateProduct(p,
-					bigc.WithUpdateProductInventoryLevel(pp.StockInfomation.Total),
+					bigc.WithUpdateProductInventoryLevel(pp.StockInformation.Total),
 					bigc.WithUpdateProductSku(sku),
 					bigc.WithUpdateProductIsVisible(true),
 					bigc.WithUpdateProductCategoryIsRetired(false),
