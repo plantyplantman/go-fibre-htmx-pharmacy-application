@@ -219,78 +219,78 @@ type ProductUpdateOpts struct {
 }
 
 type Product struct {
-	ID                          int                `json:"id"`
-	Name                        string             `json:"name"`
-	Type                        string             `json:"type"`
-	Sku                         string             `json:"sku"`
-	Description                 string             `json:"description"`
-	Weight                      float64            `json:"weight"`
-	Width                       float64            `json:"width"`
-	Depth                       float64            `json:"depth"`
-	Height                      float64            `json:"height"`
-	Price                       float64            `json:"price"`
-	CostPrice                   float64            `json:"cost_price"`
-	RetailPrice                 float64            `json:"retail_price"`
-	SalePrice                   float64            `json:"sale_price"`
-	MapPrice                    float64            `json:"map_price"`
-	TaxClassID                  int                `json:"tax_class_id"`
-	ProductTaxCode              string             `json:"product_tax_code"`
-	CalculatedPrice             float64            `json:"calculated_price"`
-	Categories                  []int              `json:"categories"`
-	BrandID                     int                `json:"brand_id"`
-	OptionSetID                 any                `json:"option_set_id"`
-	OptionSetDisplay            string             `json:"option_set_display"`
-	InventoryLevel              int                `json:"inventory_level"`
-	InventoryWarningLevel       int                `json:"inventory_warning_level"`
-	InventoryTracking           string             `json:"inventory_tracking"`
-	ReviewsRatingSum            int                `json:"reviews_rating_sum"`
-	ReviewsCount                int                `json:"reviews_count"`
-	TotalSold                   int                `json:"total_sold"`
-	FixedCostShippingPrice      float64            `json:"fixed_cost_shipping_price"`
-	IsFreeShipping              bool               `json:"is_free_shipping"`
-	IsVisible                   bool               `json:"is_visible"`
-	IsFeatured                  bool               `json:"is_featured"`
-	RelatedProducts             []int              `json:"related_products"`
-	Warranty                    string             `json:"warranty"`
-	BinPickingNumber            string             `json:"bin_picking_number"`
-	LayoutFile                  string             `json:"layout_file"`
-	Upc                         string             `json:"upc"`
-	Mpn                         string             `json:"mpn"`
-	Gtin                        string             `json:"gtin"`
-	SearchKeywords              string             `json:"search_keywords"`
-	Availability                string             `json:"availability"`
-	AvailabilityDescription     string             `json:"availability_description"`
-	GiftWrappingOptionsType     string             `json:"gift_wrapping_options_type"`
-	GiftWrappingOptionsList     []any              `json:"gift_wrapping_options_list"`
-	SortOrder                   int                `json:"sort_order"`
-	Condition                   string             `json:"condition"`
-	IsConditionShown            bool               `json:"is_condition_shown"`
-	OrderQuantityMinimum        int                `json:"order_quantity_minimum"`
-	OrderQuantityMaximum        int                `json:"order_quantity_maximum"`
-	PageTitle                   string             `json:"page_title"`
-	MetaKeywords                []string           `json:"meta_keywords"`
-	MetaDescription             string             `json:"meta_description"`
-	DateCreated                 time.Time          `json:"date_created"`
-	DateModified                time.Time          `json:"date_modified"`
-	ViewCount                   int                `json:"view_count"`
-	PreorderReleaseDate         any                `json:"preorder_release_date"`
-	PreorderMessage             string             `json:"preorder_message"`
-	IsPreorderOnly              bool               `json:"is_preorder_only"`
-	IsPriceHidden               bool               `json:"is_price_hidden"`
-	PriceHiddenLabel            string             `json:"price_hidden_label"`
-	CustomURL                   CustomURL          `json:"custom_url"`
-	BaseVariantID               int                `json:"base_variant_id"`
-	OpenGraphType               string             `json:"open_graph_type"`
-	OpenGraphTitle              string             `json:"open_graph_title"`
-	OpenGraphDescription        string             `json:"open_graph_description"`
-	OpenGraphUseMetaDescription bool               `json:"open_graph_use_meta_description"`
-	OpenGraphUseProductName     bool               `json:"open_graph_use_product_name"`
-	OpenGraphUseImage           bool               `json:"open_graph_use_image"`
-	Variants                    []Variant          `json:"variants"`
-	BulkPricingRules            []BulkPricingRules `json:"bulk_pricing_rules"`
-	Images                      []Image            `json:"images"`
-	Videos                      []Video            `json:"videos"`
-	CustomFields                []CustomField      `json:"custom_fields"`
+	ID              int     `json:"id" csv:"ID"`
+	Name            string  `json:"name" csv:"Name"`
+	Type            string  `json:"type" csv:"Type"`
+	Sku             string  `json:"sku" csv:"Sku"`
+	Description     string  `json:"description" csv:"Description"`
+	Weight          float64 `json:"weight" csv:"Weight"`
+	Width           float64 `json:"width" csv:"Width"`
+	Depth           float64 `json:"depth" csv:"Depth"`
+	Height          float64 `json:"height" csv:"Height"`
+	Price           float64 `json:"price" csv:"Price"`
+	CostPrice       float64 `json:"cost_price" csv:"CostPrice"`
+	RetailPrice     float64 `json:"retail_price" csv:"RetailPrice"`
+	SalePrice       float64 `json:"sale_price" csv:"SalePrice"`
+	MapPrice        float64 `json:"map_price" csv:"MapPrice"`
+	TaxClassID      int     `json:"tax_class_id" csv:"TaxClassID"`
+	ProductTaxCode  string  `json:"product_tax_code" csv:"ProductTaxCode"`
+	CalculatedPrice float64 `json:"calculated_price" csv:"CalculatedPrice"`
+	Categories      []int   `json:"categories" csv:"Categories"`
+	BrandID         int     `json:"brand_id" csv:"BrandID"`
+	// OptionSetID                 any                `json:"option_set_id" csv:"OptionSetID"`
+	OptionSetDisplay        string  `json:"option_set_display" csv:"OptionSetDisplay"`
+	InventoryLevel          int     `json:"inventory_level" csv:"InventoryLevel"`
+	InventoryWarningLevel   int     `json:"inventory_warning_level" csv:"InventoryWarningLevel"`
+	InventoryTracking       string  `json:"inventory_tracking" csv:"InventoryTracking"`
+	ReviewsRatingSum        int     `json:"reviews_rating_sum" csv:"ReviewsRatingSum"`
+	ReviewsCount            int     `json:"reviews_count" csv:"ReviewsCount"`
+	TotalSold               int     `json:"total_sold" csv:"TotalSold"`
+	FixedCostShippingPrice  float64 `json:"fixed_cost_shipping_price" csv:"FixedCostShippingPrice"`
+	IsFreeShipping          bool    `json:"is_free_shipping" csv:"IsFreeShipping"`
+	IsVisible               bool    `json:"is_visible" csv:"IsVisible"`
+	IsFeatured              bool    `json:"is_featured" csv:"IsFeatured"`
+	RelatedProducts         []int   `json:"related_products" csv:"RelatedProducts"`
+	Warranty                string  `json:"warranty" csv:"Warranty"`
+	BinPickingNumber        string  `json:"bin_picking_number" csv:"BinPickingNumber"`
+	LayoutFile              string  `json:"layout_file" csv:"LayoutFile"`
+	Upc                     string  `json:"upc" csv:"Upc"`
+	Mpn                     string  `json:"mpn" csv:"Mpn"`
+	Gtin                    string  `json:"gtin" csv:"Gtin"`
+	SearchKeywords          string  `json:"search_keywords" csv:"SearchKeywords"`
+	Availability            string  `json:"availability" csv:"Availability"`
+	AvailabilityDescription string  `json:"availability_description" csv:"AvailabilityDescription"`
+	GiftWrappingOptionsType string  `json:"gift_wrapping_options_type" csv:"GiftWrappingOptionsType"`
+	// GiftWrappingOptionsList     []any              `json:"gift_wrapping_options_list" csv:"GiftWrappingOptionsList"`
+	SortOrder            int       `json:"sort_order" csv:"SortOrder"`
+	Condition            string    `json:"condition" csv:"Condition"`
+	IsConditionShown     bool      `json:"is_condition_shown" csv:"IsConditionShown"`
+	OrderQuantityMinimum int       `json:"order_quantity_minimum" csv:"OrderQuantityMinimum"`
+	OrderQuantityMaximum int       `json:"order_quantity_maximum" csv:"OrderQuantityMaximum"`
+	PageTitle            string    `json:"page_title" csv:"PageTitle"`
+	MetaKeywords         []string  `json:"meta_keywords" csv:"MetaKeywords"`
+	MetaDescription      string    `json:"meta_description" csv:"MetaDescription"`
+	DateCreated          time.Time `json:"date_created" csv:"DateCreated"`
+	DateModified         time.Time `json:"date_modified" csv:"DateModified"`
+	ViewCount            int       `json:"view_count" csv:"ViewCount"`
+	// PreorderReleaseDate         any                `json:"preorder_release_date" csv:"PreorderReleaseDate"`
+	PreorderMessage             string             `json:"preorder_message" csv:"PreorderMessage"`
+	IsPreorderOnly              bool               `json:"is_preorder_only" csv:"IsPreorderOnly"`
+	IsPriceHidden               bool               `json:"is_price_hidden" csv:"IsPriceHidden"`
+	PriceHiddenLabel            string             `json:"price_hidden_label" csv:"PriceHiddenLabel"`
+	CustomURL                   CustomURL          `json:"custom_url" csv:"CustomURL"`
+	BaseVariantID               int                `json:"base_variant_id" csv:"BaseVariantID"`
+	OpenGraphType               string             `json:"open_graph_type" csv:"OpenGraphType"`
+	OpenGraphTitle              string             `json:"open_graph_title" csv:"OpenGraphTitle"`
+	OpenGraphDescription        string             `json:"open_graph_description" csv:"OpenGraphDescription"`
+	OpenGraphUseMetaDescription bool               `json:"open_graph_use_meta_description" csv:"OpenGraphUseMetaDescription"`
+	OpenGraphUseProductName     bool               `json:"open_graph_use_product_name" csv:"OpenGraphUseProductName"`
+	OpenGraphUseImage           bool               `json:"open_graph_use_image" csv:"OpenGraphUseImage"`
+	Variants                    []Variant          `json:"variants" csv:"Variants"`
+	BulkPricingRules            []BulkPricingRules `json:"bulk_pricing_rules" csv:"BulkPricingRules"`
+	Images                      []Image            `json:"images" csv:"Images"`
+	Videos                      []Video            `json:"videos" csv:"Videos"`
+	CustomFields                []CustomField      `json:"custom_fields" csv:"CustomFields"`
 }
 
 type CustomField struct {

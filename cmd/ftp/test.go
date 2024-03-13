@@ -3,37 +3,11 @@ package main
 import (
 	"io"
 	"log"
-	"os"
 	"os/exec"
-	"path/filepath"
-	"time"
-
-	"github.com/plantyplantman/bcapi/pkg/bigc"
 )
 
 func main() {
-	date := time.Now().Format("060102")
-	path := filepath.Join(`C:/Users/admin/Develin Management Dropbox/Zihan/files/in/`, date, date+`__web__pf.tsv`)
-	if err := os.MkdirAll(filepath.Dir(path), 0770); err != nil {
-		log.Fatalln(err)
-	}
-	c := bigc.MustGetClient()
-
-	var (
-		pf  *bigc.ProductFile
-		err error
-	)
-	log.Println("Getting product file...")
-	if pf, err = c.GetProductFile(); err != nil {
-		log.Fatalln(err)
-	}
-
-	if err := pf.Export(path); err != nil {
-		log.Fatalln(err)
-	}
-	log.Println("Exported product file to", path)
-
-	log.Println("Executing Python...")
+	path := `C:/Users/admin/Develin Management Dropbox/Zihan/files/in/240313/240313__web__pf.tsv`
 	cmd := exec.Command("python3", "cmd\\ftp\\main.py", "upload", path)
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -61,7 +35,6 @@ func main() {
 			if err != nil {
 				if err == io.EOF {
 					done <- struct{}{}
-					return
 				}
 				log.Fatal(err)
 			}
@@ -77,7 +50,6 @@ func main() {
 			if err != nil {
 				if err == io.EOF {
 					done <- struct{}{}
-					return
 				}
 				log.Fatal(err)
 			}
@@ -90,12 +62,10 @@ Loop:
 	for {
 		select {
 		case msg := <-msgs:
+			log.Println(msg)
 			if msg == "ok\n" {
-				log.Println("Python script finished successfully.")
-				log.Println("File uploaded to FTP server.")
 				break Loop
 			}
-			log.Println(msg)
 		case err := <-errs:
 			log.Println(err)
 			break Loop

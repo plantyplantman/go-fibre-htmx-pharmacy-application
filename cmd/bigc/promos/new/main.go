@@ -19,7 +19,8 @@ import (
 )
 
 func main() {
-	path := `C:\Users\admin\Downloads\womenshealth2promo.xml`
+
+	path := `C:\Users\admin\Desktop\promos\deletedmarch030324.xml`
 	b, err := os.ReadFile(path)
 	if err != nil {
 		log.Fatal(err)

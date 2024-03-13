@@ -15,7 +15,7 @@ import (
 )
 
 func main() {
-	check()
+	delete()
 }
 
 func check() {
@@ -50,6 +50,11 @@ func check() {
 		panic(err)
 	}
 
+	if len(ps) != len(skus) {
+		fmt.Println("missing", len(skus)-len(ps), "products")
+		return
+	}
+
 	for _, p := range ps {
 		if p.StockInformation.Total > 0 {
 			fmt.Println(p.Sku, p.StockInformation.Total)
@@ -59,35 +64,30 @@ func check() {
 }
 
 func delete() {
-	// path := `neverSold-retired.csv`
-	// f, err := os.Open(path)
-	// if err != nil {
-	// 	panic(err)
-	// }
-	// defer f.Close()
+	path := `C:\Users\admin\Develin Management Dropbox\Zihan\files\out\240226\neverSold-retired.csv`
+	f, err := os.Open(path)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
 
-	// r := csv.NewReader(f)
-	// r.Read()
+	var ps = make([]bigc.Product, 0)
+	if err := gocsv.UnmarshalFile(f, &ps); err != nil {
+		panic(err)
+	}
 
-	// lines, err := r.ReadAll()
-	// if err != nil {
-	// 	panic(err)
-	// }
+	ids := lo.Map(ps, func(p bigc.Product, _ int) int {
+		return p.ID
+	})
 
-	// ids := lo.FilterMap(lines, func(line []string, _ int) (int, bool) {
-	// 	sid := strings.TrimSpace(line[0])
-	// 	id, err := strconv.Atoi(sid)
-	// 	return id, err == nil
-	// })
+	bc := bigc.MustGetClient()
+	bc.MaxWorkers = 10
 
-	// bc := bigc.MustGetClient()
-	// errs := bc.DeleteProducts(ids)
-
-	// for err = range errs {
-	// 	if err != nil {
-	// 		log.Println(err)
-	// 	}
-	// }
+	for _, id := range ids {
+		if err := bc.DeleteProduct(id); err != nil {
+			log.Println(err)
+		}
+	}
 }
 
 func openFilterExport() {

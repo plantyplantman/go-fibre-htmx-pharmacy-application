@@ -19,7 +19,7 @@ import (
 )
 
 func main() {
-	var dates = []string{"240302"}
+	var dates = []string{"240306", "240312"}
 	// var out = report.NotOnSiteReport{}
 	for _, d := range dates {
 		nosr, err := action(d)

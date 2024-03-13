@@ -1,8 +1,14 @@
 package bigc
 
 import (
+	"encoding/csv"
 	"fmt"
+	"io"
+	"os"
 	"strings"
+
+	"github.com/gocarina/gocsv"
+	"github.com/samber/lo"
 )
 
 type ProductFile struct {
@@ -10,39 +16,29 @@ type ProductFile struct {
 }
 
 type ProductFileLine struct {
-	Id        string
-	Sku       string
-	Name      string
-	Price     float64
-	Soh       int
-	IsVariant bool
-	ImageURL  string
+	Id         string
+	Sku        string
+	Name       string
+	Price      float64
+	SalePrice  float64
+	Soh        int
+	IsVariant  bool
+	ImageURL   string
+	Categories []int
 }
 
 func (pf *ProductFile) Export(path string) error {
-	headers, err := GetStructFields(pf.Lines[0])
+	f, err := os.Create(path)
 	if err != nil {
 		return err
 	}
-
-	var content [][]string
-	var tmp []string
-	for _, p := range pf.Lines {
-		values, err := GetStructValues(p)
-		if err != nil {
-			return err
-		}
-		for _, v := range values {
-			tmp = append(tmp, fmt.Sprint(v))
-		}
-		content = append(content, tmp)
-		tmp = []string{}
-	}
-
-	if err = WriteToTsv(path, headers, content); err != nil {
-		return err
-	}
-	return nil
+	defer f.Close()
+	gocsv.SetCSVWriter(func(w io.Writer) *gocsv.SafeCSVWriter {
+		csvw := csv.NewWriter(w)
+		csvw.Comma = '\t'
+		return gocsv.NewSafeCSVWriter(csvw)
+	})
+	return gocsv.MarshalFile(&pf.Lines, f)
 }
 
 func (pf *ProductFile) GetLineBySku(sku string) (*ProductFileLine, error) {
@@ -81,7 +77,10 @@ func (c *Client) GetProductFile() (*ProductFile, error) {
 		if strings.Contains(sku, "-") || strings.Contains(sku, "Best Before") || strings.Contains(sku, "Expiry") {
 			continue
 		}
-		if sku == "" {
+		cats := lo.Keys(lo.Associate(p.Categories, func(c int) (int, struct{}) {
+			return c, struct{}{}
+		}))
+		if len(p.Variants) > 1 {
 			for _, v := range p.Variants {
 				var name string
 				if len(v.OptionValues) > 0 {
@@ -89,30 +88,41 @@ func (c *Client) GetProductFile() (*ProductFile, error) {
 				} else {
 					name = p.Name
 				}
+				var imageUrl string
+				if strings.TrimSpace(v.ImageURL) == "" && len(p.Variants) > 0 {
+					imageUrl = p.Variants[0].ImageURL
+				} else {
+					imageUrl = v.ImageURL
+				}
+
 				tmp := ProductFileLine{
-					Id:        fmt.Sprintf("%d/%d", p.ID, v.ID),
-					Name:      name,
-					Sku:       v.Sku,
-					Price:     v.Price,
-					Soh:       v.InventoryLevel,
-					IsVariant: true,
-					ImageURL:  v.ImageURL,
+					Id:         fmt.Sprintf("%d/%d", p.ID, v.ID),
+					Name:       name,
+					Sku:        v.Sku,
+					Price:      v.Price,
+					SalePrice:  v.SalePrice,
+					Soh:        v.InventoryLevel,
+					IsVariant:  true,
+					ImageURL:   imageUrl,
+					Categories: cats,
 				}
 				retv.Lines = append(retv.Lines, tmp)
 			}
 		} else {
 			imageUrl := ""
-			if len(p.Images) > 0 {
-				imageUrl = p.Images[0].ImageURL
+			if len(p.Variants) > 0 {
+				imageUrl = p.Variants[0].ImageURL
 			}
 			tmp := ProductFileLine{
-				Id:        fmt.Sprint(p.ID),
-				Name:      p.Name,
-				Sku:       p.Sku,
-				Price:     p.Price,
-				Soh:       p.InventoryLevel,
-				IsVariant: false,
-				ImageURL:  imageUrl,
+				Id:         fmt.Sprint(p.ID),
+				Name:       p.Name,
+				Sku:        p.Sku,
+				Price:      p.Price,
+				SalePrice:  p.SalePrice,
+				Soh:        p.InventoryLevel,
+				IsVariant:  false,
+				ImageURL:   imageUrl,
+				Categories: cats,
 			}
 			retv.Lines = append(retv.Lines, tmp)
 		}

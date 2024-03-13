@@ -9,6 +9,7 @@ import (
 	"net/http"
 
 	"github.com/plantyplantman/bcapi/pkg/env"
+	"github.com/samber/lo"
 	"github.com/sirupsen/logrus"
 	"golang.org/x/exp/maps"
 )
@@ -129,6 +130,41 @@ func (c *Client) GetVariants(productID int, params map[string]string) ([]Variant
 	}
 
 	return resp.Data, nil
+}
+
+func (c *Client) DeleteVariant(productID int, variantID int) error {
+	url := GetUrl(c.BaseURL, fmt.Sprintf("/catalog/products/%d/variants/%d", productID, variantID), map[string]string{})
+	req, err := http.NewRequest("DELETE", url, nil)
+	if err != nil {
+		return err
+	}
+	_, err = c.doRequest(req)
+	return err
+}
+
+func (c *Client) DeleteVariants(ids []lo.Tuple2[int, int]) chan error {
+	totalTasks := len(ids)
+	semaphore := make(chan struct{}, c.MaxWorkers)
+	errCh := make(chan error, totalTasks)
+
+	for i := 0; i < totalTasks; i++ {
+		semaphore <- struct{}{}
+		go func(i int) {
+			defer func() { <-semaphore }()
+			if err := c.DeleteVariant(ids[i].A, ids[i].B); err != nil {
+				errCh <- err
+			}
+		}(i)
+	}
+	// Wait for all goroutines to finish
+	for i := 0; i < c.MaxWorkers; i++ {
+		semaphore <- struct{}{}
+	}
+
+	close(semaphore)
+	close(errCh)
+
+	return errCh
 }
 
 func (c *Client) GetVariantById(variantID int, productID int, params map[string]string) (*Variant, error) {

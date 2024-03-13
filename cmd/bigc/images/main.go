@@ -18,8 +18,11 @@ import (
 func main() {
 	date := time.Now().Format("060102")
 
-	infile := `C:\Users\admin\Develin Management Dropbox\Zihan\files\in\240228\item_issues_406002091_2024-02-28T04_22_24.245Z_.csv`
-	outfile := filepath.Join(`C:\Users\admin\Develin Management Dropbox\Zihan\files\out\`, date, date+`__web__fixed-secondary-images.tsv`)
+	infile := `C:\Users\admin\Develin Management Dropbox\Zihan\files\in\240313\item_issues_406002091_2024-03-12T23_13_32.221Z_.csv`
+	outfile := filepath.Join(`C:\Users\admin\Develin Management Dropbox\Zihan\files\out\`, date, date+`__web__fixed-images.tsv`)
+	if err := os.MkdirAll(filepath.Dir(outfile), os.ModePerm); err != nil {
+		log.Fatalln(err)
+	}
 	f, err := os.Open(infile)
 	if err != nil {
 		log.Fatalln(err)

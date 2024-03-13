@@ -28,8 +28,8 @@ var blacklist = Blacklist{
 		"9309000566020", // TouchBio x2
 		"6970277517843", // Alltest
 		"6974408020240", // Fantest
-		"888912218139",  // Donjoy Ice Man Cold Therapy Unit
 		"9310059063316", // lyclear
+		"9556258003290", //coco scalp
 	},
 	brands: []string{
 		"Instant Smile",
@@ -43,7 +43,6 @@ var blacklist = Blacklist{
 		"Panadol",
 		"Badedas",
 		"Gaviscon",
-		"Atkins",
 		"Badedas",
 		"Expiry",
 		"Best Before",
